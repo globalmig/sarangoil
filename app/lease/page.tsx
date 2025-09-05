@@ -174,7 +174,7 @@ export default async function Page({ searchParams }: { searchParams?: { category
           <ul className="md:hidden divide-y divide-zinc-200">
             {rows.map((row) => (
               <Link href={`/lease/${String(row.id)}`}>
-                <li key={row.id} className="bg-white p-4">
+                <li key={row.id} className="bg-white p-4 pb-10 border-b">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-zinc-500">{row.date}</span>
                     <span className={`inline-flex items-center rounded-sm text-white text-[11px] font-semibold px-1.5 py-0.5 ${row.dealType === "임" ? "bg-red-500" : "bg-blue-600"}`}>
@@ -188,13 +188,19 @@ export default async function Page({ searchParams }: { searchParams?: { category
                     {row.title}
                   </h3>
 
-                  <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                    <div className="text-zinc-500">소재지</div>
-                    <div>{row.location}</div>
-                    <div className="text-zinc-500">금액</div>
-                    <div className="whitespace-nowrap">{row.price}</div>
-                    <div className="text-zinc-500">면적</div>
-                    <div className="whitespace-nowrap">{row.area}</div>
+                  <div className="mt-4 flex flex-col w-full gap-x-4 gap-y-1 text-sm">
+                    <div className="flex w-full justify-between">
+                      <div className="text-zinc-500 w-fit">소재지</div>
+                      <div>{row.location}</div>
+                    </div>
+                    <div className="flex w-full justify-between">
+                      <div className="text-zinc-500">금액</div>
+                      <div className="whitespace-nowrap">{row.price}</div>
+                    </div>
+                    <div className="flex w-full justify-between">
+                      <div className="text-zinc-500">면적</div>
+                      <div className="whitespace-nowrap">{row.area}</div>
+                    </div>
                   </div>
                 </li>
               </Link>

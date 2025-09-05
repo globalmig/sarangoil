@@ -74,11 +74,11 @@ export default async function Page() {
           </Link>
         </div>
 
-        <div className="overflow-x-auto pb-10">
+        <div className="overflow-x-auto pb-10 w-full">
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="bg-gray-100 text-center">
-                <th className="px-4 py-2 border">매물번호</th>
+                <th className="px-4 py-2 border hidden md:table-cell">매물번호</th>
                 <th className="px-4 py-2 border">특징</th>
                 <th className="px-4 py-2 border">금액</th>
               </tr>
@@ -95,7 +95,7 @@ export default async function Page() {
 
                   return (
                     <tr key={r.id} className="bg-white">
-                      <td className="px-4 py-2 border text-center">{String(r.id).padStart(8, "0")}</td>
+                      <td className="px-4 py-2 border text-center hidden md:table-cell">{String(r.id).padStart(8, "0")}</td>
                       <Link href={href} className="hover:text-lime-700">
                         <td className="px-4 py-2 border flex flex-col md:flex-row">
                           {title}

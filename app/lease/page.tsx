@@ -173,29 +173,31 @@ export default async function Page({ searchParams }: { searchParams?: { category
           {/* 모바일 카드 */}
           <ul className="md:hidden divide-y divide-zinc-200">
             {rows.map((row) => (
-              <li key={row.id} className="bg-white p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-500">{row.date}</span>
-                  <span className={`inline-flex items-center rounded-sm text-white text-[11px] font-semibold px-1.5 py-0.5 ${row.dealType === "임" ? "bg-red-500" : "bg-blue-600"}`}>
-                    {row.dealType}
-                  </span>
-                </div>
-                <div className="mt-1 text-xs text-zinc-500">매물번호 {row.id}</div>
+              <Link href={`/lease/${String(row.id)}`}>
+                <li key={row.id} className="bg-white p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-zinc-500">{row.date}</span>
+                    <span className={`inline-flex items-center rounded-sm text-white text-[11px] font-semibold px-1.5 py-0.5 ${row.dealType === "임" ? "bg-red-500" : "bg-blue-600"}`}>
+                      {row.dealType}
+                    </span>
+                  </div>
+                  <div className="mt-1 text-xs text-zinc-500">매물번호 {row.id}</div>
 
-                <h3 className="mt-2 font-medium break-keep" title={row.titleFull}>
-                  {row.isRecommended && <span className="mr-2 inline-flex items-center rounded-sm bg-lime-500/90 text-white text-[11px] font-semibold p-2 animate-pulse">추천</span>}
-                  {row.title}
-                </h3>
+                  <h3 className="mt-2 font-medium break-keep" title={row.titleFull}>
+                    {row.isRecommended && <span className="mr-2 inline-flex items-center rounded-sm bg-lime-500/90 text-white text-[11px] font-semibold p-2 animate-pulse">추천</span>}
+                    {row.title}
+                  </h3>
 
-                <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                  <div className="text-zinc-500">소재지</div>
-                  <div>{row.location}</div>
-                  <div className="text-zinc-500">금액</div>
-                  <div className="whitespace-nowrap">{row.price}</div>
-                  <div className="text-zinc-500">면적</div>
-                  <div className="whitespace-nowrap">{row.area}</div>
-                </div>
-              </li>
+                  <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                    <div className="text-zinc-500">소재지</div>
+                    <div>{row.location}</div>
+                    <div className="text-zinc-500">금액</div>
+                    <div className="whitespace-nowrap">{row.price}</div>
+                    <div className="text-zinc-500">면적</div>
+                    <div className="whitespace-nowrap">{row.area}</div>
+                  </div>
+                </li>
+              </Link>
             ))}
           </ul>
         </div>

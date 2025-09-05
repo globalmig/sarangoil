@@ -179,12 +179,9 @@ export default async function Page({ searchParams }: { searchParams?: { category
 
           {/* 모바일 카드 */}
           <ul className="md:hidden divide-y divide-zinc-200">
-            {rows.map((row) => {
-              const href = `/sale/${String(row.rawId)}`;
-              return (
-                <li key={row.id} className="bg-white p-4 relative">
-                  {/* ✅ 카드 전체 오버레이 링크 */}
-                  <Link href={href} className="absolute inset-0" aria-label="상세 보기" />
+            {rows.map((row) => (
+              <Link href={`/sale/${String(row.id)}`}>
+                <li key={row.id} className="bg-white p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-zinc-500">{row.date}</span>
                     <span className={`inline-flex items-center rounded-sm text-white text-[11px] font-semibold px-1.5 py-0.5 ${row.dealType === "임" ? "bg-red-500" : "bg-blue-600"}`}>
@@ -207,8 +204,8 @@ export default async function Page({ searchParams }: { searchParams?: { category
                     <div className="whitespace-nowrap">{row.area}</div>
                   </div>
                 </li>
-              );
-            })}
+              </Link>
+            ))}
           </ul>
         </div>
 

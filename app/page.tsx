@@ -91,7 +91,7 @@ export default async function Page() {
                   const badgeClass = r.deal_type === "임대" ? "bg-red-400" : "bg-green-500";
                   const title = `[${typeLabel}${r.deal_type}] ${r.features ?? r.location ?? ""}`;
 
-                  const href = `/properties/${String(r.id)}`;
+                  const href = `/lease/${String(r.id)}`;
 
                   return (
                     <tr key={r.id} className="bg-white">

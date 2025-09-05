@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 import React from "react";
 import Search from "../component/Search";
 import { createSupabaseServer } from "@/app/supabase/server";
+import Link from "next/link";
 
 const MAX_FEATURE_CHARS = 40; // 원하는 길이로 조절
 
@@ -144,9 +145,11 @@ export default async function Page({ searchParams }: { searchParams?: { category
                     <div className="flex items-center gap-2">
                       {row.isRecommended && <span className="inline-flex items-center rounded-sm bg-lime-500/90 text-white text-[11px] font-semibold px-2 py-0.5 animate-pulse">추천</span>}
                       {/* 표시용은 짧게, title 속성으로 전체 제공 */}
-                      <span className="break-keep" title={row.titleFull}>
-                        {row.title}
-                      </span>
+                      <Link href={`/charging/${String(row.id)}`}>
+                        <span className="break-keep" title={row.titleFull}>
+                          {row.title}
+                        </span>
+                      </Link>
                     </div>
                   </td>
                   <td className="px-4 py-3 border align-middle">

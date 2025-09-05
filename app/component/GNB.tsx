@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoClose } from "react-icons/io5";
 import { usePathname } from "next/navigation";
-
+import Image from "next/image";
 export default function GNB() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -30,12 +30,12 @@ export default function GNB() {
 
   return (
     <>
-      <nav className={["fixed inset-x-0 top-0 z-50", isHome ? "text-white" : "text-black"].join(" ")}>
+      <nav className={["fixed inset-x-0 top-0 z-50", isHome ? "text-white" : "bg-zinc-800 text-white"].join(" ")}>
         <div className="mx-auto max-w-[1440px] px-4">
           {/* 상단 바 */}
           <div className="flex h-16 lg:h-20 items-center justify-between">
-            <Link href="/" className="text-xl font-bold lg:text-base">
-              모든 주유소
+            <Link href="/" className={`text-xl font-bold lg:text-base`}>
+              <Image src="/img/logo.png" alt="모든주유소 로고" width={"140"} height={"140"} className="max-h-[30px]" />
             </Link>
 
             {/* 데스크톱 메뉴 */}

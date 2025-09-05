@@ -49,17 +49,17 @@ export default async function Page() {
             </a>
           </li>
           <li>
-            <a href="https://www.molit.go.kr/portal.do" target="_blank">
+            <a href="https://www.nts.go.kr/" target="_blank">
               <Image src="/img/OfficialLinks/국세청.png" alt="국세청" width={90} height={100} />
             </a>
           </li>
           <li>
-            <a href="https://www.molit.go.kr/portal.do" target="_blank">
+            <a href="https://www.iros.go.kr" target="_blank">
               <Image src="/img/OfficialLinks/iros.go.kr.png" alt="전자가족관계등록" width={140} height={140} />
             </a>
           </li>
           <li>
-            <a href="https://www.molit.go.kr/portal.do" target="_blank">
+            <a href="https://www.lh.or.kr/intro.html" target="_blank">
               <Image src="/img/OfficialLinks/LH한국토지주택공사.png" alt="LH한국토지주택공사" width={120} height={120} />
             </a>
           </li>

@@ -4,6 +4,7 @@ import "./globals.css";
 import GNB from "./component/GNB";
 import Footer from "./component/Footer";
 import CallBtn from "./component/CallBtn";
+import { Suspense } from "react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,7 +32,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
         <GNB />
         <CallBtn />
-        <main className="flex-1">{children}</main>
+        <Suspense fallback={<div className="p-6 text-sm text-zinc-500">Loading…</div>}>
+          <main className="flex-1">{children}</main>
+        </Suspense>
         <Footer />
       </body>
     </html>

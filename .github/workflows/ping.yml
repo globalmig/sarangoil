@@ -1,0 +1,13 @@
+name: Ping Supabase
+
+on:
+  schedule:
+    - cron: "0 */12 * * *" # 매 12시간마다 실행 (한국 기준 아님)
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: curl https://wulaarvaldhngwzfeniy.supabase.co

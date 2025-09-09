@@ -187,11 +187,11 @@ export default async function Page() {
         <section className="rounded-lg bg-white md:col-start-2 md:row-start-1 ">
           <div className=" py-3 flex items-end justify-between border-b bg-black text-white rounded-t-lg px-4 md:px-6">
             <h2 className="text-lg md:text-xl font-bold">New 새로운 매물</h2>
-            <Link href="/lease" className="hover:text-lime-600 font-semibold">
+            <Link href="/lease" className="hover:text-lime-400 font-semibold">
               전체보기 {">"}
             </Link>
           </div>
-          <div className="p-2 md:p-4">
+          <div className="">
             <RowsTable list={rows} />
           </div>
         </section>
@@ -200,11 +200,11 @@ export default async function Page() {
         <section className="rounded-lg  bg-white md:col-start-2 md:row-start-2 ">
           <div className=" py-3 flex items-end justify-between border-b bg-black text-white rounded-t-lg px-4 md:px-6">
             <h2 className="text-lg md:text-xl font-bold">주유소 임대 매물</h2>
-            <Link href="/lease?category=gas-lease" className="hover:text-lime-600 font-semibold">
+            <Link href="/lease?category=gas-lease" className="hover:text-lime-400 font-semibold">
               전체보기 {">"}
             </Link>
           </div>
-          <div className="p-2 md:p-4">
+          <div className="">
             <RowsTable list={leaseRows} />
           </div>
         </section>
@@ -213,11 +213,11 @@ export default async function Page() {
         <section className="rounded-lg bg-white md:col-start-2 md:row-start-3 ">
           <div className=" py-3 flex items-end justify-between border-b bg-black text-white rounded-t-lg px-4 md:px-6">
             <h2 className="text-lg md:text-xl font-bold">주유소 매매 매물</h2>
-            <Link href="/sale?category=gas-station" className="hover:text-lime-600 font-semibold">
+            <Link href="/sale?category=gas-station" className="hover:text-lime-400 font-semibold">
               전체보기 {">"}
             </Link>
           </div>
-          <div className="p-2 md:p-4">
+          <div className="">
             <RowsTable list={saleRows} />
           </div>
         </section>

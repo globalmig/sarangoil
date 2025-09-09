@@ -140,7 +140,7 @@ export default async function Page({ searchParams }: { searchParams?: { category
                   <td className="px-4 py-3 border align-middle">
                     <div className="flex items-center gap-2">
                       {row.isRecommended && <span className="inline-flex items-center rounded-sm bg-lime-500/90 text-white text-[11px] font-semibold px-2 py-0.5 animate-pulse">추천</span>}
-                      <Link href={`/lease/${String(row.id)}`}>
+                      <Link href={`/lands/${String(row.id)}`}>
                         <span className="break-keep" title={row.titleFull}>
                           {row.title}
                         </span>

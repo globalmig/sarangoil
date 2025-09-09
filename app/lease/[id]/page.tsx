@@ -21,9 +21,9 @@ interface InfoCardProps {
 function InfoCard({ label, value, className = "" }: InfoCardProps) {
   const displayValue = value ?? "-";
   return (
-    <div className={`border rounded-lg p-4 bg-gray-50 ${className}`}>
-      <div className="text-sm text-gray-500 mb-2">{label}</div>
-      <div className="font-semibold text-gray-900">{displayValue}</div>
+    <div className={`border-2 rounded-lg bg-gray-50 ${className} flex`}>
+      <div className="text-sm md:text-base  bg-slate-500 text-white h-full rounded-l-md w-40 text-center py-4">{label}</div>
+      <div className="font-semibold text-gray-900 text-start flex items-center p-4">{displayValue}</div>
     </div>
   );
 }
@@ -73,11 +73,11 @@ export default async function PropertyDetail({ params }: { params: { id: string 
           </div>
         </div>
 
-        <div className="px-4 py-6  border rounded-xl shadow-lg bg-zinc-100/90">
+        <div className="px-4 py-6">
           {/* 기본 정보 */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">기본 정보</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-4 pb-2 border-b">매물 정보</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
               <InfoCard label="소재지" value={data.location} />
               <InfoCard label="유형 / 거래" value={`${typeKo} / ${data.deal_type}`} />
               <InfoCard label="금액" value={priceText} className="md:col-span-1" />
@@ -91,8 +91,8 @@ export default async function PropertyDetail({ params }: { params: { id: string 
 
           {/* 시설 정보 */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">시설 정보</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-4 pb-2 border-b">시설 정보</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
               <InfoCard label="주유기 개수" value={data.pump_count} />
               <InfoCard label="저장탱크" value={data.storage_tank} />
               <InfoCard label="판매량" value={data.sales_volume} />
@@ -102,13 +102,13 @@ export default async function PropertyDetail({ params }: { params: { id: string 
 
           {/* 위치 정보 */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">위치 정보</h2>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-4 pb-2 border-b">위치 정보</h2>
             <div className="grid grid-cols-1 gap-4">
               <InfoCard label="도로 정보" value={data.road_info} className="w-full" />
             </div>
           </div>
 
-          {/* 특징 */}
+          {/* 상세 특징 */}
           {data.features && (
             <div>
               <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">특징</h2>

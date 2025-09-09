@@ -59,11 +59,20 @@ export default function Page() {
 
   // 카테고리 → DB 필터 맵 (property_type은 언더스코어 코드만 허용)
   const { propertyTypeFilter, dealTypeFromCategory } = useMemo(() => {
-    if (category === "gas_lease") return { propertyTypeFilter: "gas_station", dealTypeFromCategory: "임대" as const };
-    if (category === "gas_sale") return { propertyTypeFilter: "gas_station", dealTypeFromCategory: "매매" as const };
+    // ✅ 주유소 임대: property_type + deal_type 모두 필터
+    if (category === "gas_lease") {
+      return { propertyTypeFilter: "gas_lease", dealTypeFromCategory: "임대" as const };
+    }
+    // ✅ 주유소 매매: property_type + deal_type 모두 필터
+    if (category === "gas_sale" || category === "gas_station") {
+      return { propertyTypeFilter: "gas_station", dealTypeFromCategory: "매매" as const };
+    }
+
+    // ✅ 유형 전용 카테고리
     if (category === "charging_station") return { propertyTypeFilter: "charging_station", dealTypeFromCategory: undefined };
     if (category === "rest_area") return { propertyTypeFilter: "rest_area", dealTypeFromCategory: undefined };
-    if (category === "site") return { propertyTypeFilter: "site", dealTypeFromCategory: undefined }; // 혹시 부지 페이지에서 사용
+    if (category === "site") return { propertyTypeFilter: "site", dealTypeFromCategory: undefined };
+
     return { propertyTypeFilter: undefined, dealTypeFromCategory: undefined };
   }, [category]);
 
@@ -85,7 +94,8 @@ export default function Page() {
       let query = supabase
         .from("properties")
         .select("id, location, features, property_type, deal_type, price, deposit, monthly_rent, area, created_at")
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: false, nullsFirst: false }) // ✅ 최신순 + NULL은 뒤로
+        .order("id", { ascending: false })
         .limit(100);
 
       if (propertyTypeFilter) query = query.eq("property_type", propertyTypeFilter);
@@ -187,8 +197,12 @@ export default function Page() {
       <section className="my-10 w-full">
         <div className="max-w-[1440px] w-full mx-auto">
           <h2 className="text-xl md:text-2xl font-bold my-5 md:my-10 text-center">관리자 페이지</h2>
-
           <Search />
+          <div className="max-w-[1440px] w-full flex justify-end my-4 items-center mx-auto">
+            <Link href="/manager/write" className="px-6 py-3 bg-lime-500 rounded-md font-semibold">
+              작성하기
+            </Link>
+          </div>
 
           <div className="mt-6 overflow-x-auto rounded-lg border border-zinc-200 ">
             <table className="hidden md:table w-full border-collapse text-sm">
@@ -289,11 +303,6 @@ export default function Page() {
           {!loading && !rows.length && <div className="mt-8 text-center text-zinc-500">조건에 해당하는 매물이 없습니다.</div>}
           {loading && <div className="mt-8 text-center text-zinc-500">불러오는 중…</div>}
         </div>
-      </section>
-      <section className="max-w-[1440px] w-full flex justify-end mb-20 items-center mx-auto">
-        <Link href="/manager/write" className="px-6 py-3 bg-lime-500 rounded-md font-semibold">
-          작성하기
-        </Link>
       </section>
     </div>
   );

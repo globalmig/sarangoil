@@ -6,7 +6,7 @@ import Search from "../component/Search";
 import { createSupabaseServer } from "@/app/supabase/server";
 import Link from "next/link";
 
-const MAX_FEATURE_CHARS = 40; // 원하는 길이로 조절
+const MAX_FEATURE_CHARS = 40;
 
 function truncateText(input: unknown, max = MAX_FEATURE_CHARS) {
   const text = String(input ?? "")
@@ -20,8 +20,8 @@ function truncateText(input: unknown, max = MAX_FEATURE_CHARS) {
 type Row = {
   id: string;
   location: string;
-  title: string; // 표시용(잘린 텍스트)
-  titleFull?: string; // 전체 원문(툴팁용)
+  title: string;
+  titleFull?: string;
   isRecommended?: boolean;
   dealType: "임" | "매";
   price: string;
@@ -37,8 +37,8 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 export default async function Page({ searchParams }: { searchParams?: { category?: string; dealType?: string; listingId?: string } }) {
-  const category = (searchParams?.category ?? "lease").toLowerCase(); // "gas-lease" | "gas-sale" | ...
-  const dealTypeParam = (searchParams?.dealType ?? "").toLowerCase(); // "lease" | "sale"
+  const category = (searchParams?.category ?? "lease").toLowerCase();
+  const dealTypeParam = (searchParams?.dealType ?? "").toLowerCase();
   const listingId = (searchParams?.listingId ?? "").trim().toLowerCase();
 
   const supabase = createSupabaseServer();
@@ -61,32 +61,29 @@ export default async function Page({ searchParams }: { searchParams?: { category
 
   const dealTypeFilter = dealTypeParam === "lease" ? "임대" : dealTypeParam === "sale" ? "매매" : undefined;
 
-  // 쿼리 구성
+  // ✅ 쿼리: 최신 created_at 우선, 동일 시 id 내림차순, NULLS LAST
   let query = supabase
     .from("properties")
     .select("id, location, features, property_type, deal_type, price, deposit, monthly_rent, area, created_at")
-    .order("created_at", { ascending: false })
+    .order("created_at", { ascending: false, nullsFirst: false }) // NULL은 뒤로
+    .order("id", { ascending: false }) // 같은 시각이면 더 큰 id 먼저
     .limit(100);
 
   if (propertyTypeFilter) query = query.eq("property_type", propertyTypeFilter);
   if (dealTypeFromCategory) query = query.eq("deal_type", dealTypeFromCategory);
   if (dealTypeFilter) query = query.eq("deal_type", dealTypeFilter);
 
-  // listingId가 숫자면 DB에서 = 비교, 아니면 후처리로 부분검색
+  // listingId 숫자면 =, 아니면 후처리 부분검색
   const idNum = Number(listingId);
   const useEqId = listingId !== "" && !Number.isNaN(idNum);
   if (useEqId) query = query.eq("id", idNum);
 
   const { data, error } = await query;
-  if (error) {
-    console.error("properties fetch error:", error);
-  }
+  if (error) console.error("properties fetch error:", error);
 
-  // 매핑
   let rows: Row[] =
     (data ?? []).map((r: any) => {
       const typeKo = TYPE_LABEL[r.property_type as keyof typeof TYPE_LABEL] ?? r.property_type;
-
       const featuresFull = String(r.features ?? "");
       const featuresShort = truncateText(featuresFull);
 
@@ -101,8 +98,8 @@ export default async function Page({ searchParams }: { searchParams?: { category
       return {
         id: String(r.id).padStart(8, "0"),
         location: r.location ?? "-",
-        title, // 짧은 텍스트
-        titleFull, // 툴팁용 전체 텍스트
+        title,
+        titleFull,
         isRecommended: featuresFull.includes("추천"),
         dealType: dealTypeShort,
         price: priceText,
@@ -111,7 +108,6 @@ export default async function Page({ searchParams }: { searchParams?: { category
       };
     }) ?? [];
 
-  // listingId가 숫자가 아니면(부분검색) 클라이언트와 동일 로직으로 후처리
   if (!useEqId && listingId) {
     rows = rows.filter((row) => row.id.toLowerCase().includes(listingId));
   }
@@ -144,8 +140,7 @@ export default async function Page({ searchParams }: { searchParams?: { category
                   <td className="px-4 py-3 border align-middle">
                     <div className="flex items-center gap-2">
                       {row.isRecommended && <span className="inline-flex items-center rounded-sm bg-lime-500/90 text-white text-[11px] font-semibold px-2 py-0.5 animate-pulse">추천</span>}
-                      {/* 표시용은 짧게, title 속성으로 전체 제공 */}
-                      <Link href={`/lands/${String(row.id)}`}>
+                      <Link href={`/lease/${String(row.id)}`}>
                         <span className="break-keep" title={row.titleFull}>
                           {row.title}
                         </span>
@@ -173,8 +168,8 @@ export default async function Page({ searchParams }: { searchParams?: { category
           {/* 모바일 카드 */}
           <ul className="md:hidden divide-y divide-zinc-200">
             {rows.map((row) => (
-              <Link href={`/lands/${String(row.id)}`}>
-                <li key={row.id} className="bg-white p-4  pb-10 border-b">
+              <li key={row.id} className="bg-white p-4 pb-10 border-b">
+                <Link href={`/lease/${String(row.id)}`}>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-zinc-500">{row.date}</span>
                     <span className={`inline-flex items-center rounded-sm text-white text-[11px] font-semibold px-1.5 py-0.5 ${row.dealType === "임" ? "bg-red-500" : "bg-blue-600"}`}>
@@ -202,8 +197,8 @@ export default async function Page({ searchParams }: { searchParams?: { category
                       <div className="whitespace-nowrap">{row.area}</div>
                     </div>
                   </div>
-                </li>
-              </Link>
+                </Link>
+              </li>
             ))}
           </ul>
         </div>

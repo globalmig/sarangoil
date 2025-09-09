@@ -1,27 +1,44 @@
 // app/properties/[id]/edit/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+
+const M2_PER_PYEONG = 3.305785;
+const toPyeong = (m2Text: string) => {
+  const n = parseFloat(
+    String(m2Text ?? "")
+      .replace(/,/g, "")
+      .trim()
+  );
+  if (!isFinite(n)) return null;
+  return n / M2_PER_PYEONG;
+};
+const fmtPyeong = (v: number | null) => (v == null ? null : v.toLocaleString("ko-KR", { maximumFractionDigits: 1 }));
 
 type FormState = {
   location: string;
-  area: string;
-  property_type: "gas_station" | "site" | "charging_station" | "rest_area";
+  area: string; // m² (text)
+  property_type: "gas_station" | "charging_station" | "rest_area";
   floor: string;
   rooms_bathrooms: string;
-  approval_date: string; // YYYY-MM-DD
+  approval_date: string; // YYYY-MM-DD (text 허용)
   parking_spaces: string;
   deal_type: "매매" | "임대";
-  price: string;
-  pump_count: string;
-  storage_tank: string;
-  sales_volume: string;
-  road_info: string;
-  pole: string;
-  deposit: string;
-  monthly_rent: string;
-  features: string;
+  price: string; // text
+  pump_count: string; // text
+  storage_tank: string; // text
+  sales_volume: string; // text
+  road_info: string; // text
+  pole: string; // text
+  deposit: string; // text
+  monthly_rent: string; // text
+  features: string; // text
+  // ✅ 추가 컬럼
+  loan: string; // text
+  land_area: string; // m² (text)
+  building_area: string; // m² (text)
+  facility_premium: string; // text
 };
 
 const EMPTY: FormState = {
@@ -42,19 +59,14 @@ const EMPTY: FormState = {
   deposit: "",
   monthly_rent: "",
   features: "",
+  loan: "",
+  land_area: "",
+  building_area: "",
+  facility_premium: "",
 };
 
-function toNum(v: any) {
-  if (v === "" || v === undefined || v === null) return null;
-  const n = Number(v);
-  return Number.isNaN(n) ? null : n;
-}
-function toNull(v: any) {
-  return v === "" || v === undefined ? null : v;
-}
-
 export default function EditPropertyPage() {
-  const { id } = useParams<{ id: string }>(); // URL의 [id]
+  const { id } = useParams<{ id: string }>(); // URL [id]
   const router = useRouter();
 
   const [formData, setFormData] = useState<FormState>(EMPTY);
@@ -62,7 +74,14 @@ export default function EditPropertyPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 1) 기존 값 불러오기 (GET /api/properties/:id)
+  // 평 환산 값 (표시용)
+  const areaP = useMemo(() => fmtPyeong(toPyeong(formData.area)), [formData.area]);
+  const landP = useMemo(() => fmtPyeong(toPyeong(formData.land_area)), [formData.land_area]);
+  const buildingP = useMemo(() => fmtPyeong(toPyeong(formData.building_area)), [formData.building_area]);
+
+  const isLease = formData.deal_type === "임대";
+
+  // 1) 기존 값 불러오기
   useEffect(() => {
     if (!id) return;
     (async () => {
@@ -74,24 +93,38 @@ export default function EditPropertyPage() {
         }
         const { data } = await res.json();
 
+        // 서버 값 -> 모두 문자열로 안전 매핑
+        const asText = (v: any) => (v === null || v === undefined ? "" : String(v));
+
+        const pt = ((): FormState["property_type"] => {
+          const raw = String(data.property_type ?? "gas_station");
+          if (raw === "gas_station" || raw === "charging_station" || raw === "rest_area") return raw;
+          return "gas_station";
+        })();
+
         setFormData({
-          location: data.location ?? "",
-          area: data.area ?? "",
-          property_type: data.property_type ?? "gas_station",
-          floor: data.floor ?? "",
-          rooms_bathrooms: data.rooms_bathrooms ?? "",
-          approval_date: data.approval_date ? String(data.approval_date).slice(0, 10) : "",
-          parking_spaces: data.parking_spaces ?? "",
-          deal_type: data.deal_type ?? "매매",
-          price: data.price ?? "",
-          pump_count: data.pump_count ?? "",
-          storage_tank: data.storage_tank ?? "",
-          sales_volume: data.sales_volume ?? "",
-          road_info: data.road_info ?? "",
-          pole: data.pole ?? "",
-          deposit: data.deposit ?? "",
-          monthly_rent: data.monthly_rent ?? "",
-          features: data.features ?? "",
+          location: asText(data.location),
+          area: asText(data.area),
+          property_type: pt,
+          floor: asText(data.floor),
+          rooms_bathrooms: asText(data.rooms_bathrooms),
+          approval_date: asText(data.approval_date).slice(0, 10),
+          parking_spaces: asText(data.parking_spaces),
+          deal_type: (data.deal_type === "임대" ? "임대" : "매매") as FormState["deal_type"],
+          price: asText(data.price),
+          pump_count: asText(data.pump_count),
+          storage_tank: asText(data.storage_tank),
+          sales_volume: asText(data.sales_volume),
+          road_info: asText(data.road_info),
+          pole: asText(data.pole),
+          deposit: asText(data.deposit),
+          monthly_rent: asText(data.monthly_rent),
+          features: asText(data.features),
+          // 추가 컬럼
+          loan: asText(data.loan),
+          land_area: asText(data.land_area),
+          building_area: asText(data.building_area),
+          facility_premium: asText(data.facility_premium),
         });
       } catch (e: any) {
         setError(e.message ?? "불러오기 중 오류");
@@ -105,43 +138,29 @@ export default function EditPropertyPage() {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // 2) PATCH /api/properties/:id
+  // 2) 저장 (모든 값 text로 PATCH)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.location.trim()) {
+      alert("소재지는 필수입니다.");
+      return;
+    }
+
     setSaving(true);
-
-    const payload = {
-      location: toNull(formData.location),
-      area: toNum(formData.area),
-      property_type: formData.property_type,
-      floor: toNum(formData.floor),
-      rooms_bathrooms: toNull(formData.rooms_bathrooms),
-      approval_date: toNull(formData.approval_date),
-      parking_spaces: toNum(formData.parking_spaces),
-      deal_type: formData.deal_type,
-      price: toNum(formData.price),
-      pump_count: toNum(formData.pump_count),
-      storage_tank: toNull(formData.storage_tank),
-      sales_volume: toNum(formData.sales_volume),
-      road_info: toNull(formData.road_info),
-      pole: toNull(formData.pole),
-      deposit: toNum(formData.deposit),
-      monthly_rent: toNum(formData.monthly_rent),
-      features: toNull(formData.features),
-    };
-
     try {
       const res = await fetch(`/api/properties/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        // 그대로 보냄(빈문자열은 서버에서 null로 처리하고 싶으면 서버 로직에서 변환)
+        body: JSON.stringify(formData),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body?.error ?? "수정 실패");
       }
       alert("수정 완료!");
-      router.push("/manager"); // 수정 후 관리자 리스트로
+      // 돌아갈 위치는 프로젝트 구조에 맞게 /admin 또는 이전페이지로
+      router.push("/manager");
       router.refresh();
     } catch (e: any) {
       alert(e.message ?? "수정 중 오류가 발생했습니다.");
@@ -150,108 +169,141 @@ export default function EditPropertyPage() {
     }
   };
 
-  if (loading) return <div className="max-w-3xl mx-auto p-6 mt-20 md:mt-40">불러오는 중…</div>;
-  if (error) return <div className="max-w-3xl mx-auto p-6 text-red-600 mt-20 md:mt-40">에러: {error}</div>;
+  if (loading) return <div className="max-w-[1440px] mx-auto p-6 mt-20 md:mt-40">불러오는 중…</div>;
+  if (error) return <div className="max-w-[1440px] mx-auto p-6 text-red-600 mt-20 md:mt-40">에러: {error}</div>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6  bg-white shadow rounded my-20 md:mt-40">
-      <h1 className="text-xl font-bold mb-4">부동산 수정</h1>
+    <div className="max-w-[1440px] mx-auto p-6 bg-white shadow rounded my-20 md:mt-40">
+      <h1 className="text-3xl font-bold mb-4">부동산 수정</h1>
 
-      <form onSubmit={handleSubmit} className="grid gap-4">
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">소재지</span>
-          <input id="location" name="location" value={formData.location} placeholder="소재지" className="border p-2" onChange={handleChange} required />
-        </label>
-
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">면적 (㎡)</span>
-          <input id="area" name="area" value={formData.area} placeholder="면적 (㎡)" step="0.01" className="border p-2" onChange={handleChange} />
-        </label>
-
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">매물 유형</span>
-          <select id="property_type" name="property_type" value={formData.property_type} className="border p-2" onChange={handleChange}>
-            <option value="gas_station">주유소 임대</option>
-            <option value="gas_lease">주유소 매매</option>
-            <option value="charging_station">충전소</option>
-            <option value="rest_area">부지매매</option>
-          </select>
-        </label>
-
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">층수</span>
-          <input id="floor" name="floor" value={formData.floor} placeholder="층수" className="border p-2" onChange={handleChange} />
-        </label>
-
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">방수 및 욕실</span>
-          <input id="rooms_bathrooms" name="rooms_bathrooms" value={formData.rooms_bathrooms} placeholder="예: 방2 욕실1" className="border p-2" onChange={handleChange} />
-        </label>
-
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">사용승인일</span>
-          <input id="approval_date" name="approval_date" value={formData.approval_date} type="date" className="border p-2" onChange={handleChange} />
-        </label>
-
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">주차대수</span>
-          <input id="parking_spaces" name="parking_spaces" value={formData.parking_spaces} placeholder="주차대수" className="border p-2" onChange={handleChange} />
-        </label>
-
-        <label className="flex flex-col gap-1">
+      <form onSubmit={handleSubmit}>
+        {/* 거래형태 */}
+        <label className="flex flex-col gap-1 col-span-1">
           <span className="text-sm text-zinc-600">거래형태</span>
-          <select id="deal_type" name="deal_type" value={formData.deal_type} className="border p-2" onChange={handleChange}>
-            <option value="매매">매매</option>
-            <option value="임대">임대</option>
-          </select>
+          <div className="flex gap-6 mt-2">
+            <label className="flex items-center gap-2">
+              <input type="radio" name="deal_type" value="매매" checked={formData.deal_type === "매매"} onChange={handleChange} />
+              매매
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="radio" name="deal_type" value="임대" checked={formData.deal_type === "임대"} onChange={handleChange} />
+              임대
+            </label>
+          </div>
         </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">가격(원)</span>
-          <input id="price" name="price" value={formData.price} placeholder="가격 (원)" className="border p-2" onChange={handleChange} />
-        </label>
+        {/* 입력 필드 */}
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 my-10">
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">소재지</span>
+            <input id="location" name="location" value={formData.location} placeholder="소재지" className="border p-2" onChange={handleChange} type="text" required />
+          </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">주유기 개수</span>
-          <input id="pump_count" name="pump_count" value={formData.pump_count} placeholder="주유기개수" className="border p-2" onChange={handleChange} />
-        </label>
+          {/* DB 허용값과 라벨 정리 */}
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">매물 유형</span>
+            <select id="property_type" name="property_type" className="border p-2" value={formData.property_type} onChange={handleChange}>
+              <option value="gas_station">주유소</option>
+              <option value="charging_station">충전소</option>
+              <option value="rest_area">휴게소</option>
+            </select>
+          </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">저장탱크</span>
-          <input id="storage_tank" name="storage_tank" value={formData.storage_tank} placeholder="저장탱크" className="border p-2" onChange={handleChange} />
-        </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">층수</span>
+            <input id="floor" name="floor" value={formData.floor} placeholder="층수" className="border p-2" onChange={handleChange} type="text" />
+          </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">판매량</span>
-          <input id="sales_volume" name="sales_volume" value={formData.sales_volume} placeholder="판매량" step="0.01" className="border p-2" onChange={handleChange} />
-        </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">방수 및 욕실</span>
+            <input id="rooms_bathrooms" name="rooms_bathrooms" value={formData.rooms_bathrooms} placeholder="방2 욕실1" className="border p-2" onChange={handleChange} type="text" />
+          </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">도로 정보</span>
-          <input id="road_info" name="road_info" value={formData.road_info} placeholder="도로 정보" className="border p-2" onChange={handleChange} />
-        </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">사용승인일</span>
+            <input id="approval_date" name="approval_date" value={formData.approval_date} placeholder="YYYY-MM-DD" className="border p-2" onChange={handleChange} type="text" />
+          </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">폴(가능여부)</span>
-          <input id="pole" name="pole" value={formData.pole} placeholder="폴 (가능여부)" className="border p-2" onChange={handleChange} />
-        </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">도로 현황</span>
+            <input id="road_info" name="road_info" value={formData.road_info} placeholder="도로 현황" className="border p-2" onChange={handleChange} type="text" />
+          </label>
 
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">보증금(원)</span>
-          <input id="deposit" name="deposit" value={formData.deposit} placeholder="보증금 (원)" className="border p-2" onChange={handleChange} />
-        </label>
+          {/* 금액 UX: 임대/매매 분기 (모두 text) */}
+          {isLease ? (
+            <>
+              <label className="flex flex-col gap-1">
+                <span className="text-sm text-zinc-600">보증금(원)</span>
+                <input id="deposit" name="deposit" value={formData.deposit} placeholder="예: 100000000" className="border p-2" onChange={handleChange} type="text" />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-sm text-zinc-600">월세(원)</span>
+                <input id="monthly_rent" name="monthly_rent" value={formData.monthly_rent} placeholder="예: 3000000" className="border p-2" onChange={handleChange} type="text" />
+              </label>
+            </>
+          ) : (
+            <label className="flex flex-col gap-1">
+              <span className="text-sm text-zinc-600">매매가(원)</span>
+              <input id="price" name="price" value={formData.price} placeholder="예: 1500000000" className="border p-2" onChange={handleChange} type="text" />
+            </label>
+          )}
 
-        <label className="flex flex-col gap-1">
-          <span className="text-sm text-zinc-600">월세(원)</span>
-          <input id="monthly_rent" name="monthly_rent" value={formData.monthly_rent} placeholder="월세 (원)" className="border p-2" onChange={handleChange} />
-        </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">융자금(원)</span>
+            <input id="loan" name="loan" value={formData.loan} placeholder="예: 300000000" className="border p-2" onChange={handleChange} type="text" />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">저장탱크(기수/용량)</span>
+            <input id="storage_tank" name="storage_tank" value={formData.storage_tank} placeholder="예: 3기 / 90kL" className="border p-2" onChange={handleChange} type="text" />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">주유기(대)</span>
+            <input id="pump_count" name="pump_count" value={formData.pump_count} placeholder="예: 6" className="border p-2" onChange={handleChange} type="text" />
+          </label>
+
+          {/* 면적류: m² 입력 → 평 자동 표시 */}
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">부지 면적(㎡)</span>
+            <input id="area" name="area" value={formData.area} placeholder="예: 1200" className="border p-2" onChange={handleChange} type="text" />
+            {areaP && <span className="text-xs text-zinc-500">≈ {areaP} 평</span>}
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">대지(㎡)</span>
+            <input id="land_area" name="land_area" value={formData.land_area} placeholder="예: 500" className="border p-2" onChange={handleChange} type="text" />
+            {landP && <span className="text-xs text-zinc-500">≈ {landP} 평</span>}
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">건평(㎡)</span>
+            <input id="building_area" name="building_area" value={formData.building_area} placeholder="예: 150" className="border p-2" onChange={handleChange} type="text" />
+            {buildingP && <span className="text-xs text-zinc-500">≈ {buildingP} 평</span>}
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">폴(변경가능여부)</span>
+            <input id="pole" name="pole" value={formData.pole} placeholder="예: 가능/협의/불가" className="border p-2" onChange={handleChange} type="text" />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">판매량(ℓ/월)</span>
+            <input id="sales_volume" name="sales_volume" value={formData.sales_volume} placeholder="예: 300000" className="border p-2" onChange={handleChange} type="text" />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-sm text-zinc-600">시설권리금(원)</span>
+            <input id="facility_premium" name="facility_premium" value={formData.facility_premium} placeholder="예: 80000000" className="border p-2" onChange={handleChange} type="text" />
+          </label>
+        </div>
 
         <label className="flex flex-col gap-1 col-span-full">
           <span className="text-sm text-zinc-600">특징</span>
-          <textarea id="features" name="features" value={formData.features} placeholder="특징" className="border p-2" onChange={handleChange} />
+          <textarea id="features" name="features" value={formData.features} placeholder="특이사항, 조건, 메모 등" className="border p-2 h-48" onChange={handleChange} />
         </label>
 
-        <button type="submit" disabled={saving} className="bg-lime-500 text-white py-3 rounded hover:bg-lime-600 disabled:opacity-50">
+        <button type="submit" disabled={saving} className="bg-lime-500 text-white py-3 w-full my-10 p-2 rounded hover:bg-lime-600 disabled:opacity-60 disabled:cursor-not-allowed">
           {saving ? "수정 중…" : "수정하기"}
         </button>
       </form>

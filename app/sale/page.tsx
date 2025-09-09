@@ -1,9 +1,10 @@
 // app/your-list-page/page.tsx
 export const dynamic = "force-dynamic";
-import Link from "next/link";
+
 import React from "react";
 import Search from "../component/Search";
 import { createSupabaseServer } from "@/app/supabase/server";
+import Link from "next/link";
 
 const MAX_FEATURE_CHARS = 40;
 
@@ -17,8 +18,7 @@ function truncateText(input: unknown, max = MAX_FEATURE_CHARS) {
 }
 
 type Row = {
-  rawId: string | number; // ✅ 원본 id (링크용)
-  id: string; // 8자리 패딩(표시용)
+  id: string;
   location: string;
   title: string;
   titleFull?: string;
@@ -43,6 +43,7 @@ export default async function Page({ searchParams }: { searchParams?: { category
 
   const supabase = createSupabaseServer();
 
+  // 카테고리 → property_type / deal_type 맵
   let propertyTypeFilter: string | undefined;
   let dealTypeFromCategory: "매매" | "임대" | undefined;
 
@@ -60,16 +61,19 @@ export default async function Page({ searchParams }: { searchParams?: { category
 
   const dealTypeFilter = dealTypeParam === "lease" ? "임대" : dealTypeParam === "sale" ? "매매" : undefined;
 
+  // ✅ 쿼리: 최신 created_at 우선, 동일 시 id 내림차순, NULLS LAST
   let query = supabase
     .from("properties")
     .select("id, location, features, property_type, deal_type, price, deposit, monthly_rent, area, created_at")
-    .order("created_at", { ascending: false })
+    .order("created_at", { ascending: false, nullsFirst: false }) // NULL은 뒤로
+    .order("id", { ascending: false }) // 같은 시각이면 더 큰 id 먼저
     .limit(100);
 
   if (propertyTypeFilter) query = query.eq("property_type", propertyTypeFilter);
   if (dealTypeFromCategory) query = query.eq("deal_type", dealTypeFromCategory);
   if (dealTypeFilter) query = query.eq("deal_type", dealTypeFilter);
 
+  // listingId 숫자면 =, 아니면 후처리 부분검색
   const idNum = Number(listingId);
   const useEqId = listingId !== "" && !Number.isNaN(idNum);
   if (useEqId) query = query.eq("id", idNum);
@@ -77,7 +81,6 @@ export default async function Page({ searchParams }: { searchParams?: { category
   const { data, error } = await query;
   if (error) console.error("properties fetch error:", error);
 
-  // ✅ rows 매핑 시 rawId 추가
   let rows: Row[] =
     (data ?? []).map((r: any) => {
       const typeKo = TYPE_LABEL[r.property_type as keyof typeof TYPE_LABEL] ?? r.property_type;
@@ -93,7 +96,6 @@ export default async function Page({ searchParams }: { searchParams?: { category
       const dateText = r.created_at ? new Date(r.created_at).toISOString().slice(0, 10) : "";
 
       return {
-        rawId: r.id, // ✅ 링크용
         id: String(r.id).padStart(8, "0"),
         location: r.location ?? "-",
         title,
@@ -131,57 +133,43 @@ export default async function Page({ searchParams }: { searchParams?: { category
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => {
-                const href = `/sale/${String(row.rawId)}`; // ✅ 상세 경로
-                return (
-                  <tr key={row.id} className="bg-white hover:bg-zinc-50">
-                    <td className="px-4 py-3 border text-center whitespace-nowrap align-middle relative">
-                      {/* ✅ 셀 전체 오버레이 링크 */}
-                      <Link href={href} className="absolute inset-0" aria-label="상세 보기" />
-                      {row.id}
-                    </td>
-                    <td className="px-4 py-3 border align-middle relative">
-                      <Link href={href} className="absolute inset-0" aria-label="상세 보기" />
-                      {row.location}
-                    </td>
-                    <td className="px-4 py-3 border align-middle relative">
-                      <Link href={href} className="absolute inset-0" aria-label="상세 보기" />
-                      <div className="flex items-center gap-2">
-                        {row.isRecommended && <span className="inline-flex items-center rounded-sm bg-lime-500/90 text-white text-[11px] font-semibold px-2 py-0.5 animate-pulse">추천</span>}
+              {rows.map((row) => (
+                <tr key={row.id} className="bg-white hover:bg-zinc-50">
+                  <td className="px-4 py-3 border text-center whitespace-nowrap align-middle">{row.id}</td>
+                  <td className="px-4 py-3 border align-middle">{row.location}</td>
+                  <td className="px-4 py-3 border align-middle">
+                    <div className="flex items-center gap-2">
+                      {row.isRecommended && <span className="inline-flex items-center rounded-sm bg-lime-500/90 text-white text-[11px] font-semibold px-2 py-0.5 animate-pulse">추천</span>}
+                      <Link href={`/lease/${String(row.id)}`}>
                         <span className="break-keep" title={row.titleFull}>
                           {row.title}
                         </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 border align-middle relative">
-                      <Link href={href} className="absolute inset-0" aria-label="상세 보기" />
+                      </Link>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 border align-middle">
+                    <div className="flex items-center gap-2">
                       <span
                         className={`inline-flex items-center rounded-sm text-white text-[11px] font-semibold px-1.5 py-0.5 ${row.dealType === "임" ? "bg-red-500" : "bg-blue-600"}`}
                         title={row.dealType === "임" ? "임대" : "매매"}
                       >
                         {row.dealType}
                       </span>
-                      <span className="whitespace-nowrap ml-2">{row.price}</span>
-                    </td>
-                    <td className="px-4 py-3 border text-center whitespace-nowrap align-middle relative">
-                      <Link href={href} className="absolute inset-0" aria-label="상세 보기" />
-                      {row.area}
-                    </td>
-                    <td className="px-4 py-3 border text-center whitespace-nowrap align-middle relative">
-                      <Link href={href} className="absolute inset-0" aria-label="상세 보기" />
-                      {row.date}
-                    </td>
-                  </tr>
-                );
-              })}
+                      <span className="whitespace-nowrap">{row.price}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 border text-center whitespace-nowrap align-middle">{row.area}</td>
+                  <td className="px-4 py-3 border text-center whitespace-nowrap align-middle">{row.date}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
 
           {/* 모바일 카드 */}
-          <ul className="md:hidden divide-y divide-zinc-200 ">
+          <ul className="md:hidden divide-y divide-zinc-200">
             {rows.map((row) => (
-              <Link href={`/sale/${String(row.id)}`}>
-                <li key={row.id} className="bg-white p-4  pb-10 border-b">
+              <li key={row.id} className="bg-white p-4 pb-10 border-b">
+                <Link href={`/lease/${String(row.id)}`}>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-zinc-500">{row.date}</span>
                     <span className={`inline-flex items-center rounded-sm text-white text-[11px] font-semibold px-1.5 py-0.5 ${row.dealType === "임" ? "bg-red-500" : "bg-blue-600"}`}>
@@ -209,8 +197,8 @@ export default async function Page({ searchParams }: { searchParams?: { category
                       <div className="whitespace-nowrap">{row.area}</div>
                     </div>
                   </div>
-                </li>
-              </Link>
+                </Link>
+              </li>
             ))}
           </ul>
         </div>

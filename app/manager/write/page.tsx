@@ -2,6 +2,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const M2_PER_PYEONG = 3.305785;
 const toPyeong = (m2Text: string) => {
@@ -36,6 +37,7 @@ type FormDataType = {
 };
 
 export default function PropertyForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState<FormDataType>({
     location: "",
     area: "",
@@ -90,6 +92,7 @@ export default function PropertyForm() {
 
     if (res.ok) {
       alert("등록 완료!");
+      router.push("/manager");
       // 필요하면 초기화
       // setFormData({...formData, location:"", ...})
     } else {
@@ -145,8 +148,8 @@ export default function PropertyForm() {
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-sm text-zinc-600">방수 및 욕실</span>
-            <input id="rooms_bathrooms" name="rooms_bathrooms" placeholder="방2 욕실1" className="border-2 bg-zinc-100/40 p-2 " onChange={handleChange} type="text" />
+            <span className="text-sm text-zinc-600">부대시설</span>
+            <input id="rooms_bathrooms" name="rooms_bathrooms" placeholder="부대시설" className="border-2 bg-zinc-100/40 p-2 " onChange={handleChange} type="text" />
           </label>
 
           <label className="flex flex-col gap-1">
@@ -190,7 +193,7 @@ export default function PropertyForm() {
 
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">주유기(대)</span>
-            <input id="pump_count" name="pump_count" placeholder="예: 6" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />s
+            <input id="pump_count" name="pump_count" placeholder="예: 6" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
           </label>
 
           {/* ✅ 면적류: m² 입력 → 평 자동 계산 표시 */}

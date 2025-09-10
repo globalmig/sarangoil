@@ -9,6 +9,10 @@ import Link from "next/link";
 import { FaRegEdit } from "react-icons/fa";
 import { FaRegTrashAlt } from "react-icons/fa";
 
+// === [추가] 세션 유지 시간(시간 단위) ===
+const SESSION_HOURS = 6;
+const LS_KEY = "admin_pass_exp";
+
 type Row = {
   id: string;
   location: string;
@@ -27,12 +31,6 @@ const TYPE_LABEL: Record<string, string> = {
   rest_area: "부지",
 };
 
-// function formatManwon(v: number | null | undefined) {
-//   if (v == null) return "-";
-//   const man = Math.round(v / 10000);
-//   return `${man.toLocaleString("ko-KR")}만원`;
-// }
-
 // ✅ 클라이언트용 Supabase (환경변수 필요)
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
 
@@ -42,10 +40,33 @@ export default function Page() {
   const [isWord, setWord] = useState("");
   const EXPECTED = process.env.NEXT_PUBLIC_PASSWORD ?? "";
 
+  // === [추가] 최초 진입 시 로컬스토리지 만료 확인 ===
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return;
+      const exp = Number(raw);
+      if (!Number.isFinite(exp)) return;
+      if (Date.now() < exp) {
+        setPass(true); // 아직 유효
+      } else {
+        localStorage.removeItem(LS_KEY); // 만료
+      }
+    } catch {}
+  }, []);
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isWord === EXPECTED) setPass(true);
-    else alert("관리자 비밀번호를 입력해주세요");
+    if (isWord === EXPECTED) {
+      setPass(true);
+      // === [추가] 통과 시 만료시간 저장 ===
+      const exp = Date.now() + SESSION_HOURS * 60 * 60 * 1000;
+      try {
+        localStorage.setItem(LS_KEY, String(exp));
+      } catch {}
+    } else {
+      alert("관리자 비밀번호를 입력해주세요");
+    }
   };
 
   // ---- 검색 파라미터 읽기 (클라이언트 전용) ---------------------------------
@@ -59,20 +80,15 @@ export default function Page() {
 
   // 카테고리 → DB 필터 맵 (property_type은 언더스코어 코드만 허용)
   const { propertyTypeFilter, dealTypeFromCategory } = useMemo(() => {
-    // ✅ 주유소 임대: property_type + deal_type 모두 필터
     if (category === "gas_lease") {
       return { propertyTypeFilter: "gas_lease", dealTypeFromCategory: "임대" as const };
     }
-    // ✅ 주유소 매매: property_type + deal_type 모두 필터
     if (category === "gas_sale" || category === "gas_station") {
       return { propertyTypeFilter: "gas_station", dealTypeFromCategory: "매매" as const };
     }
-
-    // ✅ 유형 전용 카테고리
     if (category === "charging_station") return { propertyTypeFilter: "charging_station", dealTypeFromCategory: undefined };
     if (category === "rest_area") return { propertyTypeFilter: "rest_area", dealTypeFromCategory: undefined };
     if (category === "site") return { propertyTypeFilter: "site", dealTypeFromCategory: undefined };
-
     return { propertyTypeFilter: undefined, dealTypeFromCategory: undefined };
   }, [category]);
 
@@ -94,7 +110,7 @@ export default function Page() {
       let query = supabase
         .from("properties")
         .select("id, location, features, property_type, deal_type, price, deposit, monthly_rent, area, created_at")
-        .order("created_at", { ascending: false, nullsFirst: false }) // ✅ 최신순 + NULL은 뒤로
+        .order("created_at", { ascending: false, nullsFirst: false })
         .order("id", { ascending: false })
         .limit(100);
 
@@ -102,7 +118,6 @@ export default function Page() {
       if (dealTypeFromCategory) query = query.eq("deal_type", dealTypeFromCategory);
       if (dealTypeFilter) query = query.eq("deal_type", dealTypeFilter);
 
-      // listingId가 숫자면 DB에서 = 비교
       const idNum = Number(listingId);
       const useEqId = listingId !== "" && !Number.isNaN(idNum);
       if (useEqId) query = query.eq("id", idNum);
@@ -136,7 +151,6 @@ export default function Page() {
           };
         }) ?? [];
 
-      // 부분 검색(listingId가 숫자가 아니면 프론트에서 필터)
       if (!useEqId && listingId) {
         mapped = mapped.filter((row) => row.id.toLowerCase().includes(listingId));
       }
@@ -175,13 +189,10 @@ export default function Page() {
   async function apiDeleteProperty(id: number) {
     const res = await fetch(`/api/properties/${id}`, {
       method: "DELETE",
-      // 캐시 남지 않게
       cache: "no-store",
       headers: { "Content-Type": "application/json" },
     });
-
     if (!res.ok) {
-      // 서버에서 온 에러 메시지 있으면 보여주기
       let msg = `DELETE failed: ${res.status}`;
       try {
         const body = await res.json();
@@ -192,11 +203,27 @@ export default function Page() {
     return res.json();
   }
 
+  // === [추가] 로그아웃 핸들러 ===
+  const onLogout = () => {
+    try {
+      localStorage.removeItem(LS_KEY);
+    } catch {}
+    setPass(false);
+    setWord("");
+  };
+
   return (
     <div className="mt-20 md:mt-40 px-4 mx-auto">
       <section className="my-10 w-full">
         <div className="max-w-[1440px] w-full mx-auto">
-          <h2 className="text-xl md:text-2xl font-bold my-5 md:my-10 text-center">관리자 페이지</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl md:text-2xl font-bold my-5 md:my-10 text-center">관리자 페이지</h2>
+            {/* === [추가] 로그아웃 버튼 === */}
+            <button onClick={onLogout} className="h-10 px-4 rounded-md bg-zinc-100 hover:bg-zinc-200 text-zinc-700">
+              로그아웃
+            </button>
+          </div>
+
           <Search />
           <div className="max-w-[1440px] w-full flex justify-end my-4 items-center mx-auto">
             <Link href="/manager/write" className="px-6 py-3 bg-zinc-800 text-white rounded-md font-semibold">

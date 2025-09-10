@@ -215,8 +215,8 @@ export default function EditPropertyPage() {
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-sm text-zinc-600">방수 및 욕실</span>
-            <input id="rooms_bathrooms" name="rooms_bathrooms" value={formData.rooms_bathrooms} placeholder="방2 욕실1" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
+            <span className="text-sm text-zinc-600">부대시설</span>
+            <input id="rooms_bathrooms" name="rooms_bathrooms" value={formData.rooms_bathrooms} placeholder="부대시설" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
           </label>
 
           <label className="flex flex-col gap-1">

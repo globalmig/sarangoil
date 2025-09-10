@@ -47,8 +47,8 @@ type Property = {
 function InfoCard({ label, value, className = "" }: { label: string; value: string | number | null | undefined; className?: string }) {
   const displayValue = value ?? "-";
   return (
-    <div className={`border border-zinc-300 bg-gray-50 ${className} flex`}>
-      <div className="text-sm md:text-base bg-zinc-600 text-white h-full w-28 text-center py-3">{label}</div>
+    <div className={`border border-zinc-400 bg-gray-50 ${className} flex`}>
+      <div className="text-sm md:text-base bg-lime-700/30 text-zinc-800 font-medium  h-full w-28 text-center py-3">{label}</div>
       <div className="font-semibold text-gray-900 text-start flex items-center px-4">{displayValue}</div>
     </div>
   );
@@ -78,11 +78,6 @@ export default function DetailPage({ data }: { data: Property }) {
                 <span>매물번호: {propertyIdFormatted}</span>
               </div>
             </div>
-            <div className="flex justify-end w-full gap-3">
-              <Link href="/lease?category=gas-lease" className="px-4 py-2 my-2 text-sm bg-white border rounded-lg hover:bg-gray-50 transition-colors">
-                목록으로
-              </Link>
-            </div>
           </div>
         </div>
 
@@ -98,7 +93,7 @@ export default function DetailPage({ data }: { data: Property }) {
               <InfoCard label="세차기" value={landText} />
               <InfoCard label="건평" value={buildingText} />
               <InfoCard label="층수" value={data.floor} />
-              <InfoCard label="방/욕실" value={data.rooms_bathrooms} />
+              <InfoCard label="부대시설" value={data.rooms_bathrooms} />
               <InfoCard label="사용승인일" value={approvalDateText} />
               <InfoCard label="주차대수" value={data.parking_spaces} />
               <InfoCard label="주유기 개수" value={data.pump_count} />
@@ -114,13 +109,18 @@ export default function DetailPage({ data }: { data: Property }) {
           {/* 상세 특징 */}
           {data.features && (
             <div>
-              <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-4 pb-2 border-b">특징</h2>
+              <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-4 pb-2 border-b">상세 정보</h2>
               <div className="bg-gray-50 border rounded-lg p-6">
                 <p className="whitespace-pre-wrap break-keep text-gray-700 leading-relaxed">{data.features}</p>
               </div>
             </div>
           )}
         </div>
+      </div>
+      <div className="flex justify-center w-full gap-3 ">
+        <Link href="/lease?category=gas-lease" className="px-4 py-2 my-10 w-full max-w-[820px] text-center text-sm bg-lime-700/30 border rounded-lg hover:bg-gray-50 transition-colors">
+          목록으로
+        </Link>
       </div>
     </section>
   );

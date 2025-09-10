@@ -178,8 +178,8 @@ export default async function Page() {
               </a>
             </li> */}
             <li>
-              <a href="https://www.iros.go.kr" target="_blank" rel="noreferrer" className="block hover:opacity-80">
-                <Image src="/img/OfficialLinks/iros.go.kr.png" alt="전자등기" width={140} height={140} />
+              <a href="https://efamily.scourt.go.kr/index.jsp" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                <Image src="/img/OfficialLinks/iros.go.kr.png" alt="전자가족관계등록" width={140} height={140} />
               </a>
             </li>
             <li>
@@ -214,7 +214,7 @@ export default async function Page() {
             </li> */}
             <li>
               <a href="https://www.eum.go.kr/web/am/amMain.jsp" target="_blank" rel="noreferrer" className="block hover:opacity-80">
-                <Image src="/img/OfficialLinks/토지이용규제정보서비스.png" alt="토지이용규제정보서비스" width={120} height={120} />
+                <Image src="/img/OfficialLinks/토지e음.png" alt="토지e음" width={140} height={140} />
               </a>
             </li>
             <li>

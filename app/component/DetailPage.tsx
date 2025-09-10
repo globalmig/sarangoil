@@ -66,7 +66,7 @@ export default function DetailPage({ data }: { data: Property }) {
   const propertyIdFormatted = String(data.id).padStart(8, "0");
 
   return (
-    <section className="w-full my-20 md:mt-40">
+    <section className="w-full my-20 md:mt-32">
       <div className="max-w-[860px] mx-auto">
         {/* 헤더 */}
         <div className="md:py-10 border-b mb-4 px-4">

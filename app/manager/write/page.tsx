@@ -221,7 +221,7 @@ export default function PropertyForm() {
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">세차기</span>
             <input id="land_area" name="land_area" placeholder="예: 500" className="border-2 bg-zinc-100/40 p-2" inputMode="text" onChange={handleChange} value={formData.land_area} type="text" />
-            {landP && <span className="text-xs text-zinc-500">≈ {landP} 세차기 보유</span>}
+            <span className="text-xs text-zinc-500"> 세차기 보유</span>
           </label>
 
           <label className="flex flex-col gap-1">

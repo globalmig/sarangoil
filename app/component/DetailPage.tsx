@@ -106,7 +106,7 @@ export default function DetailPage({ data }: { data: Property }) {
               <InfoCard label="층수" value={data.floor} />
               <InfoCard label="부대시설" value={data.rooms_bathrooms} />
               <InfoCard label="사용승인일" value={approvalDateText} />
-              <InfoCard label="주차대수" value={data.parking_spaces} />
+              {/* <InfoCard label="주차대수" value={data.parking_spaces} /> */}
               <InfoCard label="주유기 개수" value={data.pump_count} />
               <InfoCard label="저장탱크" value={data.storage_tank} />
               <InfoCard label="판매량" value={data.sales_volume} />

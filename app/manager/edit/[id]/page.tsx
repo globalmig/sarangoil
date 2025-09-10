@@ -39,6 +39,8 @@ type FormState = {
   land_area: string; // m² (text)
   building_area: string; // m² (text)
   facility_premium: string; // text
+  is_recommended: boolean;
+  is_urgent: boolean;
 };
 
 const EMPTY: FormState = {
@@ -63,6 +65,8 @@ const EMPTY: FormState = {
   land_area: "",
   building_area: "",
   facility_premium: "",
+  is_recommended: false,
+  is_urgent: false,
 };
 
 export default function EditPropertyPage() {
@@ -93,8 +97,8 @@ export default function EditPropertyPage() {
         }
         const { data } = await res.json();
 
-        // 서버 값 -> 모두 문자열로 안전 매핑
         const asText = (v: any) => (v === null || v === undefined ? "" : String(v));
+        const asBool = (v: any) => Boolean(v); // ✅ 불리언 안전 변환
 
         const pt = ((): FormState["property_type"] => {
           const raw = String(data.property_type ?? "gas_station");
@@ -120,11 +124,13 @@ export default function EditPropertyPage() {
           deposit: asText(data.deposit),
           monthly_rent: asText(data.monthly_rent),
           features: asText(data.features),
-          // 추가 컬럼
+          // ✅ 추가 컬럼 불러오기
           loan: asText(data.loan),
           land_area: asText(data.land_area),
           building_area: asText(data.building_area),
           facility_premium: asText(data.facility_premium),
+          is_recommended: asBool(data.is_recommended),
+          is_urgent: asBool(data.is_urgent),
         });
       } catch (e: any) {
         setError(e.message ?? "불러오기 중 오류");
@@ -138,7 +144,13 @@ export default function EditPropertyPage() {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // 2) 저장 (모든 값 text로 PATCH)
+  // ✅ 체크박스 전용 체인지 핸들러
+  const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: checked }));
+  };
+
+  // 2) 저장 (모든 값 text/boolean 그대로 PATCH)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.location.trim()) {
@@ -151,15 +163,13 @@ export default function EditPropertyPage() {
       const res = await fetch(`/api/properties/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        // 그대로 보냄(빈문자열은 서버에서 null로 처리하고 싶으면 서버 로직에서 변환)
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData), // ✅ is_recommended / is_urgent 포함
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body?.error ?? "수정 실패");
       }
       alert("수정 완료!");
-      // 돌아갈 위치는 프로젝트 구조에 맞게 /admin 또는 이전페이지로
       router.push("/manager");
       router.refresh();
     } catch (e: any) {
@@ -191,6 +201,18 @@ export default function EditPropertyPage() {
             </label>
           </div>
         </label>
+
+        {/* ✅ 추천/급매 토글 */}
+        <div className="flex gap-6 my-4">
+          <label className="flex items-center gap-2">
+            <input type="checkbox" name="is_recommended" checked={formData.is_recommended} onChange={handleCheck} />
+            추천
+          </label>
+          <label className="flex items-center gap-2">
+            <input type="checkbox" name="is_urgent" checked={formData.is_urgent} onChange={handleCheck} />
+            급매
+          </label>
+        </div>
 
         {/* 입력 필드 */}
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 my-10">

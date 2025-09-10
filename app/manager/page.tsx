@@ -22,6 +22,7 @@ type Row = {
   price: string;
   area: string;
   date: string;
+  code: string;
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -98,6 +99,18 @@ export default function Page() {
     return undefined;
   }, [dealTypeParam]);
 
+  const M2_PER_PYEONG = 3.305785;
+  function pyeongSuffix(area: unknown) {
+    if (area == null) return "";
+    const s = String(area).replace(/,/g, "");
+    const m = s.match(/-?\d+(\.\d+)?/); // 숫자만 추출
+    if (!m) return "";
+    const m2 = parseFloat(m[0]);
+    if (!isFinite(m2)) return "";
+    const py = m2 / M2_PER_PYEONG;
+    return ` ( ${py.toLocaleString("ko-KR", { maximumFractionDigits: 1 })}평)`;
+  }
+
   // ---- 데이터 로드 ----------------------------------------------------------
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(false);
@@ -109,7 +122,7 @@ export default function Page() {
 
       let query = supabase
         .from("properties")
-        .select("id, location, features, property_type, deal_type, price, deposit, monthly_rent, area, created_at")
+        .select("id, location, features, property_type, deal_type, price, deposit, monthly_rent, area, created_at,code")
         .order("created_at", { ascending: false, nullsFirst: false })
         .order("id", { ascending: false })
         .limit(100);
@@ -136,11 +149,21 @@ export default function Page() {
           const title = `[${typeKo}${r.deal_type}] ${r.features ?? ""}`.trim();
           const dealTypeShort: "임" | "매" = r.deal_type === "임대" ? "임" : "매";
           const priceText = r.deal_type === "임대" ? `${r.deposit} / ${r.monthly_rent}` : `${r.price}`;
-          const areaText = typeof r.area === "number" ? `${r.area}㎡` : r.area ? `${r.area}㎡` : "-";
-          const dateText = r.created_at ? new Date(r.created_at).toISOString().slice(0, 10) : "";
+          const areaText = r.area != null && String(r.area).trim() !== "" ? `${r.area}㎡${pyeongSuffix(r.area)}` : "-";
+          const dateText = r.created_at
+            ? new Date(r.created_at)
+                .toLocaleDateString("ko-KR", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                })
+                .replace(/\./g, "-")
+                .replace(/\s/g, "")
+            : "-";
 
           return {
             id: String(r.id).padStart(8, "0"),
+            code: r.code ?? "",
             location: r.location ?? "-",
             title,
             isRecommended: (r.features ?? "").includes("추천"),
@@ -248,7 +271,7 @@ export default function Page() {
               <tbody>
                 {rows.map((row) => (
                   <tr key={row.id} className="bg-white hover:bg-zinc-50">
-                    <td className="px-4 py-3 border text-center whitespace-nowrap align-middle">{row.id}</td>
+                    <td className="px-4 py-3 border text-center whitespace-nowrap align-middle">{row.code}</td>
                     <td className="px-4 py-3 border align-middle">{row.location}</td>
                     <td className="px-4 py-3 border align-middle">
                       <div className="flex items-center gap-2">

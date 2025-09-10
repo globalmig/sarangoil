@@ -42,6 +42,7 @@ type Property = {
   road_info?: string | null;
   location?: string | null;
   created_at?: string | null;
+  code?: string | null;
 };
 
 function InfoCard({ label, value, className = "" }: { label: string; value: string | number | null | undefined; className?: string }) {
@@ -59,11 +60,21 @@ export default function DetailPage({ data }: { data: Property }) {
   const title = `[${typeKo} ${data.deal_type}] ${data.features ?? ""}`.trim();
   const priceText = data.deal_type === "임대" ? `${data.deposit ?? "-"} / ${data.monthly_rent ?? "-"}` : `${data.price ?? "-"}`;
   const areaText = m2ToPyeongText(data.area);
-  const landText = m2ToPyeongText(data.land_area);
+  const landText = data.land_area;
   const buildingText = m2ToPyeongText(data.building_area);
-  const dateText = data.created_at ? new Date(data.created_at).toISOString().slice(0, 10) : "-";
+  const dateText = data.created_at
+    ? new Date(data.created_at)
+        .toLocaleDateString("ko-KR", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+
+        .replace(/\s/g, "")
+    : "-";
   const approvalDateText = data.approval_date ? String(data.approval_date).slice(0, 10) : "-";
   const propertyIdFormatted = String(data.id).padStart(8, "0");
+  const propertyCode = data.code ?? String(data.id).padStart(8, "0");
 
   return (
     <section className="w-full my-20 md:mt-32">
@@ -75,7 +86,7 @@ export default function DetailPage({ data }: { data: Property }) {
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 break-keep mb-2">{title}</h1>
               <div className="flex w-full flex-col md:flex-row md:items-center gap-4 text-sm text-gray-600 mt-4">
                 <span>등록일: {dateText}</span>
-                <span>매물번호: {propertyIdFormatted}</span>
+                <span>매물번호: {propertyCode}</span>
               </div>
             </div>
           </div>

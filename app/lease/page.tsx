@@ -27,6 +27,9 @@ type Row = {
   price: string;
   area: string;
   date: string;
+  code: string;
+
+  isUrgent?: boolean;
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -35,6 +38,18 @@ const TYPE_LABEL: Record<string, string> = {
   charging_station: "충전소",
   rest_area: "휴게소",
 };
+
+const M2_PER_PYEONG = 3.305785;
+function pyeongSuffix(area: unknown) {
+  if (area == null) return "";
+  const s = String(area).replace(/,/g, "");
+  const m = s.match(/-?\d+(\.\d+)?/); // 숫자만 추출
+  if (!m) return "";
+  const m2 = parseFloat(m[0]);
+  if (!isFinite(m2)) return "";
+  const py = m2 / M2_PER_PYEONG;
+  return ` ( ${py.toLocaleString("ko-KR", { maximumFractionDigits: 1 })}평)`;
+}
 
 export default async function Page({ searchParams }: { searchParams?: { category?: string; dealType?: string; listingId?: string } }) {
   const category = (searchParams?.category ?? "lease").toLowerCase();
@@ -64,9 +79,9 @@ export default async function Page({ searchParams }: { searchParams?: { category
   // ✅ 쿼리: 최신 created_at 우선, 동일 시 id 내림차순, NULLS LAST
   let query = supabase
     .from("properties")
-    .select("id, location, features, property_type, deal_type, price, deposit, monthly_rent, area, created_at")
+    .select("*")
     .order("created_at", { ascending: false, nullsFirst: false }) // NULL은 뒤로
-    .order("id", { ascending: false }) // 같은 시각이면 더 큰 id 먼저
+    .order("code, id", { ascending: false }) // 같은 시각이면 더 큰 id 먼저
     .limit(100);
 
   if (propertyTypeFilter) query = query.eq("property_type", propertyTypeFilter);
@@ -92,19 +107,33 @@ export default async function Page({ searchParams }: { searchParams?: { category
 
       const dealTypeShort: "임" | "매" = r.deal_type === "임대" ? "임" : "매";
       const priceText = r.deal_type === "임대" ? `${r.deposit} / ${r.monthly_rent}` : `${r.price}`;
-      const areaText = typeof r.area === "number" ? `${r.area}㎡` : r.area ? `${r.area}㎡` : "-";
-      const dateText = r.created_at ? new Date(r.created_at).toISOString().slice(0, 10) : "";
+      const areaText = r.area != null && String(r.area).trim() !== "" ? `${r.area}㎡${pyeongSuffix(r.area)}` : "-";
+      const dateText = r.created_at
+        ? new Date(r.created_at)
+            .toLocaleDateString("ko-KR", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+            })
+            .replace(/\s/g, "")
+        : "-";
+      const codeText = r.code ? String(r.code) : String(r.id).padStart(10, "0");
+
+      const isRecommended = Boolean(r.is_recommended) || featuresFull.includes("추천");
+      const isUrgent = Boolean(r.is_urgent) || featuresFull.includes("급매");
 
       return {
         id: String(r.id).padStart(8, "0"),
         location: r.location ?? "-",
         title,
         titleFull,
-        isRecommended: featuresFull.includes("추천"),
+        isRecommended, // ← 교체
+        isUrgent,
         dealType: dealTypeShort,
         price: priceText,
         area: areaText,
         date: dateText,
+        code: codeText,
       };
     }) ?? [];
 
@@ -135,14 +164,19 @@ export default async function Page({ searchParams }: { searchParams?: { category
             <tbody>
               {rows.map((row) => (
                 <tr key={row.id} className="bg-white hover:bg-zinc-50">
-                  <td className="px-4 py-3 border text-center whitespace-nowrap align-middle">{row.id}</td>
+                  <td className="px-4 py-3 border text-center whitespace-nowrap align-middle">{row.code}</td>
                   <td className="px-4 py-3 border align-middle">{row.location}</td>
                   <td className="px-4 py-3 border align-middle">
                     <div className="flex items-center gap-2">
-                      {row.isRecommended && <span className="inline-flex items-center rounded-sm bg-lime-500/90 text-white text-[11px] font-semibold px-2 py-0.5 animate-pulse">추천</span>}
                       <Link href={`/lease/${String(row.id)}`}>
-                        <span className="break-keep" title={row.titleFull}>
+                        <span className="break-keep flex gap-4" title={row.titleFull}>
                           {row.title}
+                          {row.isUrgent && (
+                            <span className="inline-flex items-center rounded-sm bg-red-600 text-white text-[11px] font-semibold px-2 py-0.5 h-6 animate-blink animate-infinite">급매</span>
+                          )}
+                          {row.isRecommended && (
+                            <span className="inline-flex items-center rounded-sm bg-lime-500/90 text-white text-[11px] font-semibold px-2 py-0.5 h-6 animate-blink animate-infinite">추천</span>
+                          )}
                         </span>
                       </Link>
                     </div>
@@ -176,11 +210,16 @@ export default async function Page({ searchParams }: { searchParams?: { category
                       {row.dealType}
                     </span>
                   </div>
-                  <div className="mt-1 text-xs text-zinc-500">매물번호 {row.id}</div>
+                  <div className="mt-1 text-xs text-zinc-500">매물번호 {row.code}</div>
 
-                  <h3 className="mt-2 font-medium break-keep" title={row.titleFull}>
-                    {row.isRecommended && <span className="mr-2 inline-flex items-center rounded-sm bg-lime-500/90 text-white text-[11px] font-semibold p-2 animate-pulse">추천</span>}
+                  <h3 className="mt-2 gap-2 flex font-medium break-keep" title={row.titleFull}>
                     {row.title}
+                    {row.isUrgent && (
+                      <span className="mr-2 inline-flex items-center rounded-sm bg-red-600 text-white text-[11px] font-semibold px-2 py-0.5 h-6 animate-blink animate-infinite">급매</span>
+                    )}
+                    {row.isRecommended && (
+                      <span className="mr-2 inline-flex items-center rounded-sm bg-lime-500/90 text-white text-[11px] font-semibold px-2 py-0.5 h-6 animate-blink animate-infinite">추천</span>
+                    )}
                   </h3>
 
                   <div className="mt-4 flex flex-col w-full gap-x-4 gap-y-1 text-sm">

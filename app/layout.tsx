@@ -18,8 +18,31 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "모든 주유소",
-  description: "주유소 임대, 매매, 부지, 충전소 매물을 확인할 수 있는 사이트입니다.",
+  metadataBase: new URL("https://www.modenoil.com"),
+  icons: {
+    icon: "/favicon.ico",
+  },
+  title: {
+    default: "모든 주유소 | 주유소 임대·매매·부지 전문",
+    template: "%s | 모든 주유소",
+  },
+  description: "주유소 임대·매매·부지 전문 중개. 전국 물건 실시간 업데이트, 상담 031-245-5189.",
+  alternates: { canonical: "https://www.modenoil.com" },
+  openGraph: {
+    type: "website",
+    siteName: "모든 주유소",
+    title: "모든 주유소 | 주유소 임대·매매·부지 전문",
+    description: "주유소 임대·매매·부지 전문 중개. 전국 물건 실시간 업데이트, 상담 031-245-5189.",
+    images: [{ url: "/img/Main/hero_bg_1.jpg", width: 1200, height: 630 }],
+    locale: "ko_KR",
+  },
+  verification: {
+    other: {
+      // "google-site-verification": "구글_콘솔에서_받은_코드", // e.g. abcdefg...
+      "naver-site-verification": "75cff2584cf7554b7fdae91a6d22869a56048c3d", // e.g. 1234567...
+    },
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
@@ -29,6 +52,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
         <GNB />
         <CallBtn />

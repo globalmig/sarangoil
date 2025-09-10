@@ -31,30 +31,56 @@ type Row = {
 export default async function Page() {
   const supabase = createSupabaseServer();
 
-  // ✅ 섹션별 최신 10개씩 병렬 조회
+  // ✅ 섹션별 최신 10개씩 병렬 조회 - created_at 기준으로 내림차순 정렬
   const [allRes, leaseRes, saleRes] = await Promise.all([
-    supabase.from("properties").select("id, deal_type, property_type, features, price, deposit, monthly_rent, location, created_at").order("created_at", { ascending: false }).limit(10),
+    supabase.from("properties").select("id, deal_type, property_type, features, price, deposit, monthly_rent, location, created_at").order("id", { ascending: false }).limit(10),
     supabase
       .from("properties")
       .select("id, deal_type, property_type, features, price, deposit, monthly_rent, location, created_at")
       .eq("deal_type", "임대")
-      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
       .limit(10),
     supabase
       .from("properties")
       .select("id, deal_type, property_type, features, price, deposit, monthly_rent, location, created_at")
       .eq("deal_type", "매매")
-      .order("created_at", { ascending: false })
+      .order("id", { ascending: false })
       .limit(10),
   ]);
 
-  if (allRes.error) console.error("properties(all) fetch error:", allRes.error);
-  if (leaseRes.error) console.error("properties(lease) fetch error:", leaseRes.error);
-  if (saleRes.error) console.error("properties(sale) fetch error:", saleRes.error);
+  // 에러 로깅 개선
+  if (allRes.error) {
+    console.error("properties(all) fetch error:", allRes.error);
+    console.error("Query details:", { table: "properties", filter: "none", order: "created_at desc" });
+  }
+  if (leaseRes.error) {
+    console.error("properties(lease) fetch error:", leaseRes.error);
+    console.error("Query details:", { table: "properties", filter: "deal_type = 임대", order: "created_at desc" });
+  }
+  if (saleRes.error) {
+    console.error("properties(sale) fetch error:", saleRes.error);
+    console.error("Query details:", { table: "properties", filter: "deal_type = 매매", order: "created_at desc" });
+  }
 
   const rows: Row[] = (allRes.data as Row[]) ?? [];
   const leaseRows: Row[] = (leaseRes.data as Row[]) ?? [];
   const saleRows: Row[] = (saleRes.data as Row[]) ?? [];
+
+  // 디버깅을 위한 로그 추가
+  console.log("Fetched data counts:", {
+    all: rows.length,
+    lease: leaseRows.length,
+    sale: saleRows.length,
+  });
+
+  // 최신 데이터 확인 (ID 기준)
+  if (rows.length > 0) {
+    console.log("Latest item (highest ID):", {
+      id: rows[0].id,
+      created_at: rows[0].created_at,
+      deal_type: rows[0].deal_type,
+    });
+  }
 
   // ✅ 공통 테이블 렌더러
   function RowsTable({ list }: { list: Row[] }) {
@@ -83,16 +109,15 @@ export default async function Page() {
                 return (
                   <tr key={r.id} className="bg-white">
                     <td className="px-4 py-2 border text-center hidden md:table-cell">{String(r.id).padStart(8, "0")}</td>
-
                     <td className="px-4 py-2 border">
                       <Link href={href} className="hover:text-lime-700 flex flex-col md:flex-row">
-                        {title}
-                        <div className="bg-lime-400 text-lime-900 w-fit px-1 py-0.5 rounded-sm ml-0 md:ml-4">
+                        <div className="max-w-[800px]">{title}</div>
+
+                        <div className="bg-red-600 text-white px-1 py-1 rounded-sm ml-0 md:ml-4 w-8 break-keep h-fit">
                           <p className="animate-blink animate-infinite text-xs font-semibold">추천</p>
                         </div>
                       </Link>
                     </td>
-
                     <td className="px-4 py-2 border">
                       <div className="flex items-center gap-2">
                         <span className={`w-fit px-1 text-white rounded-sm ${badgeClass}`}>{badge}</span>
@@ -130,40 +155,63 @@ export default async function Page() {
   return (
     <div>
       {/* 히어로 */}
-      <section className="md:h-[600px] h-72">
+      <section className="md:h-[460px] h-64">
         <HeroSlider />
       </section>
+
       {/* ===== 메인 2열 그리드 ===== */}
-      <section
-        className="max-w-[1440px] mx-auto px-4 md:mt-20 my-10
-                    md:grid md:grid-cols-[280px_1fr] md:auto-rows-min md:gap-6"
-      >
+      <section className="max-w-[1200px] mx-auto px-4 md:mt-20 my-10 md:grid md:grid-cols-[200px_1fr] md:auto-rows-min md:gap-6">
         {/* 1행 좌: 로고 패널 */}
         <aside className="rounded-lg border bg-white md:col-start-1 md:row-start-1 hidden md:block">
           <div className="px-4 py-3 border-b bg-black text-white rounded-t-lg">
             <h2 className="text-lg md:text-xl font-bold text-center">관련 사이트</h2>
           </div>
-          <ul className="p-4 grid grid-cols-1 gap-10 place-items-center">
-            <li>
+          <ul className="p-4 grid grid-cols-1 gap-8 place-items-center">
+            {/* <li>
               <a href="https://www.molit.go.kr/portal.do" target="_blank" rel="noreferrer" className="block hover:opacity-80">
                 <Image src="/img/OfficialLinks/molit.go.kr.png" alt="국토교통부" width={120} height={120} />
               </a>
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <a href="https://www.nts.go.kr/" target="_blank" rel="noreferrer" className="block hover:opacity-80">
                 <Image src="/img/OfficialLinks/국세청.png" alt="국세청" width={110} height={110} />
               </a>
-            </li>
+            </li> */}
             <li>
               <a href="https://www.iros.go.kr" target="_blank" rel="noreferrer" className="block hover:opacity-80">
-                <Image src="/img/OfficialLinks/iros.go.kr.png" alt="전자등기" width={130} height={130} />
+                <Image src="/img/OfficialLinks/iros.go.kr.png" alt="전자등기" width={140} height={140} />
               </a>
             </li>
             <li>
+              <a href="https://www.consumer.go.kr/consumer/index.do" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                <Image src="/img/OfficialLinks/소비자24.png" alt="소비자24" width={140} height={140} />
+              </a>
+            </li>
+            <li>
+              <a href="http://www.ikosa.or.kr/" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                <Image src="/img/OfficialLinks/한국주유소협회.png" alt="한국주유소협회" width={150} height={150} />
+              </a>
+            </li>
+            <li>
+              <a href="https://www.opinet.co.kr/user/main/mainView.do" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                <Image src="/img/OfficialLinks/오피넷.png" alt="오피넷" width={100} height={100} />
+              </a>
+            </li>
+            <li>
+              <a href="https://www.kpetro.or.kr/index.do" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                <Image src="/img/OfficialLinks/한국석유관리원.png" alt="석유관리원" width={150} height={150} />
+              </a>
+            </li>
+            <li>
+              <a href="http://www.koreaoil.or.kr/" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                <Image src="/img/OfficialLinks/한국석유유통협회.png" alt="한국석유유통협회" width={150} height={150} />
+              </a>
+            </li>
+            {/* <li>
               <a href="https://www.lh.or.kr/intro.html" target="_blank" rel="noreferrer" className="block hover:opacity-80">
                 <Image src="/img/OfficialLinks/LH한국토지주택공사.png" alt="LH 한국토지주택공사" width={120} height={120} />
               </a>
-            </li>
+            </li> */}
             <li>
               <a href="https://www.eum.go.kr/web/am/amMain.jsp" target="_blank" rel="noreferrer" className="block hover:opacity-80">
                 <Image src="/img/OfficialLinks/토지이용규제정보서비스.png" alt="토지이용규제정보서비스" width={120} height={120} />
@@ -179,14 +227,13 @@ export default async function Page() {
                 <Image src="/img/OfficialLinks/카카오맵.png" alt="카카오맵" width={120} height={120} />
               </a>
             </li>
-            {/* 필요하면 로고 추가 */}
           </ul>
         </aside>
 
         {/* 1행 우: 신규 게시판 */}
-        <section className="rounded-lg bg-white md:col-start-2 md:row-start-1 ">
-          <div className=" py-3 flex items-end justify-between border-b bg-black text-white rounded-t-lg px-4 md:px-6">
-            <h2 className="text-lg md:text-xl font-bold">New 새로운 매물</h2>
+        <section className="rounded-lg bg-white md:col-start-2 md:row-start-1">
+          <div className="py-3 flex items-end justify-between border-b bg-black text-white rounded-t-lg px-4 md:px-6">
+            <h2 className="text-lg md:text-xl font-bold">New 급매물</h2>
             <Link href="/lease" className="hover:text-lime-400 font-semibold">
               전체보기 {">"}
             </Link>
@@ -196,10 +243,10 @@ export default async function Page() {
           </div>
         </section>
 
-        {/* 2행 우: 임대 (신규와 같은 라인에 정렬) */}
-        <section className="rounded-lg  bg-white md:col-start-2 md:row-start-2 ">
-          <div className=" py-3 flex items-end justify-between border-b bg-black text-white rounded-t-lg px-4 md:px-6">
-            <h2 className="text-lg md:text-xl font-bold">주유소 임대 매물</h2>
+        {/* 2행 우: 임대 */}
+        <section className="rounded-lg bg-white md:col-start-2 md:row-start-2">
+          <div className="py-3 flex items-end justify-between border-b bg-black text-white rounded-t-lg px-4 md:px-6">
+            <h2 className="text-lg md:text-xl font-bold">주유소 임대 물건</h2>
             <Link href="/lease?category=gas-lease" className="hover:text-lime-400 font-semibold">
               전체보기 {">"}
             </Link>
@@ -209,10 +256,10 @@ export default async function Page() {
           </div>
         </section>
 
-        {/* 3행 우: 매매 (신규와 같은 라인에 정렬) */}
-        <section className="rounded-lg bg-white md:col-start-2 md:row-start-3 ">
-          <div className=" py-3 flex items-end justify-between border-b bg-black text-white rounded-t-lg px-4 md:px-6">
-            <h2 className="text-lg md:text-xl font-bold">주유소 매매 매물</h2>
+        {/* 3행 우: 매매 */}
+        <section className="rounded-lg bg-white md:col-start-2 md:row-start-3">
+          <div className="py-3 flex items-end justify-between border-b bg-black text-white rounded-t-lg px-4 md:px-6">
+            <h2 className="text-lg md:text-xl font-bold">주유소 매매 물건</h2>
             <Link href="/sale?category=gas-station" className="hover:text-lime-400 font-semibold">
               전체보기 {">"}
             </Link>
@@ -222,64 +269,6 @@ export default async function Page() {
           </div>
         </section>
       </section>
-
-      {/* 하단 섹션/문의 */}
-      {/* <section className="max-w-[1440px] mx-auto px-4 border-t-2 py-10 md:py-20"> */}
-      {/* 첫 줄
-        <div className="flex flex-col md:flex-row gap-2 md:gap-6">
-          <div className="text-wrap md:w-[30%] flex flex-col justify-between py-10">
-            <p className="opacity-60">합리적인 가격</p>
-            <p className="text-xl md:text-2xl font-bold mb-3 break-keep mt-2">
-              실제 시장 가격을 반영하여,
-              <br className="hidden md:block" /> 신뢰할 수 있는 주유소 매매 및 임대를 제공합니다.
-            </p>
-            <Link href={"/lease?category=gas-lease"} className="text-lime-600 border-b-lime-600 border-b-2 flex justify-between w-28 p-2">
-              <p>View More</p>
-              <p>+</p>
-            </Link>
-          </div>
-          <div className="img-wrap w-full md:w-[70%] aspect-[16/6] overflow-hidden relative">
-            <Image src="/img/Company/item01.jpg" alt="주유소" fill className="object-cover rounded-md" />
-          </div>
-        </div>
-
-        {/* 둘째 줄 */}
-      {/* <div className="flex flex-col-reverse md:flex-row gap-2 md:gap-6 my-12 md:my-40">
-          <div className="img-wrap w-full md:w-[70%] aspect-[16/6] overflow-hidden relative">
-            <Image src="/img/Company/item02.jpg" alt="주유소" fill className="object-cover rounded-md" />
-          </div>
-          <div className="text-wrap md:w-[30%] flex flex-col justify-between py-10">
-            <p className="opacity-60">전문 컨설팅</p>
-            <p className="text-xl md:text-2xl font-bold mb-3 break-keep mt-2">주유소 업계 전문가들의 고객의 상황에 맞는 최적의 상담을 제공합니다.</p>
-            <Link href={"/#contact"} className="text-lime-600 border-b-lime-600 border-b-2 flex justify-between w-28 p-2">
-              <p>문의하기</p>
-              <p>+</p>
-            </Link>
-          </div>
-        </div> */}
-
-      {/* 셋째 줄 */}
-      {/* <div className="flex flex-col md:flex-row gap-2 md:gap-6">
-          <div className="text-wrap md:w-[30%] flex flex-col justify-between py-10">
-            <p className="opacity-60">투명한 거래</p>
-            <p className="text-xl md:text-2xl font-bold mb-3 break-keep mt-2">매물 정보부터 계약까지, 모든 과정에서 투명성을 보장합니다.</p>
-            <Link href={"/#contact"} className="text-lime-600 border-b-lime-600 border-b-2 flex justify-between w-28 p-2">
-              <p>문의하기</p>
-              <p>+</p>
-            </Link>
-          </div>
-          <div className="img-wrap w-full md:w-[70%] aspect-[16/6] overflow-hidden relative">
-            <Image src="/img/Company/item03.jpg" alt="주유소" fill className="object-cover rounded-md" />
-          </div>
-        </div>*/}
-      {/* </section> */}
-
-      {/* <section className="Map max-w-[1440px] w-full flex flex-col mx-auto items-center px-4 py-10 border-t">
-        <div className="flex text-center w-full mb-4">
-          <h2 className="text-xl md:text-2xl font-bold">부동산 찾아오시는 길</h2>
-        </div>
-        <GoogleMap />
-      </section> */}
 
       <div id="contact">
         <Contact />

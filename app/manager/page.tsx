@@ -199,7 +199,7 @@ export default function Page() {
           <h2 className="text-xl md:text-2xl font-bold my-5 md:my-10 text-center">관리자 페이지</h2>
           <Search />
           <div className="max-w-[1440px] w-full flex justify-end my-4 items-center mx-auto">
-            <Link href="/manager/write" className="px-6 py-3 bg-lime-500 rounded-md font-semibold">
+            <Link href="/manager/write" className="px-6 py-3 bg-zinc-800 text-white rounded-md font-semibold">
               작성하기
             </Link>
           </div>

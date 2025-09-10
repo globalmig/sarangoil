@@ -5,8 +5,8 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
 type Category =
-  | "gas-lease" // 주유소임대
-  | "gas-station" // 주유소매매
+  // | "lease" // 주유소임대
+  // | "sale" // 주유소매매
   | "charging-station" // 충전소
   | "rest-area"; // 부지
 
@@ -20,8 +20,6 @@ type DealType = "sale" | "lease"; // 매매 / 임대
 // ];
 
 const CATEGORY_OPTIONS: { label: string; value: Category }[] = [
-  { label: "주유소 임대", value: "gas-lease" },
-  { label: "주유소 매매", value: "gas-station" },
   { label: "충전소", value: "charging-station" },
   { label: "부지매매", value: "rest-area" },
 ];

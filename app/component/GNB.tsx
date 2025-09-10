@@ -41,10 +41,10 @@ export default function GNB() {
             {/* 데스크톱 메뉴 */}
             <ul className="hidden lg:flex items-center gap-8 font-bold">
               <li>
-                <Link href="/lease?category=gas-lease">주유소 임대</Link>
+                <Link href="/lease?dealType=lease">주유소 임대</Link>
               </li>
               <li>
-                <Link href="/sale?category=gas-station">주유소 매매</Link>
+                <Link href="/sale?dealType=sale">주유소 매매</Link>
               </li>
               <li>
                 <Link href="/lands?category=rest-area">주유소 부지</Link>
@@ -65,12 +65,12 @@ export default function GNB() {
         <div id="mo-menu" className={["lg:hidden overflow-hidden transition-[max-height] duration-300", open ? "max-h-[480px]" : "max-h-0"].join(" ")}>
           <ul className="bg-white text-black shadow-md font-semibold divide-y">
             <li>
-              <Link href="/lease?category=gas-lease" className="block px-4 py-4" onClick={() => setOpen(false)}>
+              <Link href="/lease?category=gas-lease&dealType=lease" className="block px-4 py-4" onClick={() => setOpen(false)}>
                 주유소 임대
               </Link>
             </li>
             <li>
-              <Link href="/sale?category=gas-station" className="block px-4 py-4" onClick={() => setOpen(false)}>
+              <Link href="/sale?dealType=sale" className="block px-4 py-4" onClick={() => setOpen(false)}>
                 주유소 매매
               </Link>
             </li>

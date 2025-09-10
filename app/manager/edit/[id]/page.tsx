@@ -169,11 +169,11 @@ export default function EditPropertyPage() {
     }
   };
 
-  if (loading) return <div className="max-w-[1440px] mx-auto p-6 mt-20 md:mt-40">불러오는 중…</div>;
+  if (loading) return <div className="max-w-[1440px] mx-auto w-full justify-center items-center p-6 mt-20 md:mt-40">불러오는 중…</div>;
   if (error) return <div className="max-w-[1440px] mx-auto p-6 text-red-600 mt-20 md:mt-40">에러: {error}</div>;
 
   return (
-    <div className="max-w-[1440px] mx-auto p-6 bg-white shadow rounded my-20 md:mt-40">
+    <div className="max-w-[840px] mx-auto p-6 bg-white shadow rounded my-20 md:mt-40">
       <h1 className="text-3xl font-bold mb-4">부동산 수정</h1>
 
       <form onSubmit={handleSubmit}>
@@ -196,13 +196,13 @@ export default function EditPropertyPage() {
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 my-10">
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">소재지</span>
-            <input id="location" name="location" value={formData.location} placeholder="소재지" className="border p-2" onChange={handleChange} type="text" required />
+            <input id="location" name="location" value={formData.location} placeholder="소재지" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" required />
           </label>
 
           {/* DB 허용값과 라벨 정리 */}
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">매물 유형</span>
-            <select id="property_type" name="property_type" className="border p-2" value={formData.property_type} onChange={handleChange}>
+            <select id="property_type" name="property_type" className="border-2 bg-zinc-100/40 p-2.5" value={formData.property_type} onChange={handleChange}>
               <option value="gas_station">주유소</option>
               <option value="charging_station">충전소</option>
               <option value="rest_area">휴게소</option>
@@ -211,22 +211,22 @@ export default function EditPropertyPage() {
 
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">층수</span>
-            <input id="floor" name="floor" value={formData.floor} placeholder="층수" className="border p-2" onChange={handleChange} type="text" />
+            <input id="floor" name="floor" value={formData.floor} placeholder="층수" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
           </label>
 
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">방수 및 욕실</span>
-            <input id="rooms_bathrooms" name="rooms_bathrooms" value={formData.rooms_bathrooms} placeholder="방2 욕실1" className="border p-2" onChange={handleChange} type="text" />
+            <input id="rooms_bathrooms" name="rooms_bathrooms" value={formData.rooms_bathrooms} placeholder="방2 욕실1" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
           </label>
 
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">사용승인일</span>
-            <input id="approval_date" name="approval_date" value={formData.approval_date} placeholder="YYYY-MM-DD" className="border p-2" onChange={handleChange} type="text" />
+            <input id="approval_date" name="approval_date" value={formData.approval_date} placeholder="YYYY-MM-DD" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
           </label>
 
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">도로 현황</span>
-            <input id="road_info" name="road_info" value={formData.road_info} placeholder="도로 현황" className="border p-2" onChange={handleChange} type="text" />
+            <input id="road_info" name="road_info" value={formData.road_info} placeholder="도로 현황" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
           </label>
 
           {/* 금액 UX: 임대/매매 분기 (모두 text) */}
@@ -234,76 +234,84 @@ export default function EditPropertyPage() {
             <>
               <label className="flex flex-col gap-1">
                 <span className="text-sm text-zinc-600">보증금(원)</span>
-                <input id="deposit" name="deposit" value={formData.deposit} placeholder="예: 100000000" className="border p-2" onChange={handleChange} type="text" />
+                <input id="deposit" name="deposit" value={formData.deposit} placeholder="예: 100000000" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
               </label>
               <label className="flex flex-col gap-1">
                 <span className="text-sm text-zinc-600">월세(원)</span>
-                <input id="monthly_rent" name="monthly_rent" value={formData.monthly_rent} placeholder="예: 3000000" className="border p-2" onChange={handleChange} type="text" />
+                <input id="monthly_rent" name="monthly_rent" value={formData.monthly_rent} placeholder="예: 3000000" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
               </label>
             </>
           ) : (
             <label className="flex flex-col gap-1">
               <span className="text-sm text-zinc-600">매매가(원)</span>
-              <input id="price" name="price" value={formData.price} placeholder="예: 1500000000" className="border p-2" onChange={handleChange} type="text" />
+              <input id="price" name="price" value={formData.price} placeholder="예: 1500000000" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
             </label>
           )}
 
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">융자금(원)</span>
-            <input id="loan" name="loan" value={formData.loan} placeholder="예: 300000000" className="border p-2" onChange={handleChange} type="text" />
+            <input id="loan" name="loan" value={formData.loan} placeholder="예: 300000000" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-sm text-zinc-600">저장탱크(기수/용량)</span>
-            <input id="storage_tank" name="storage_tank" value={formData.storage_tank} placeholder="예: 3기 / 90kL" className="border p-2" onChange={handleChange} type="text" />
+            <span className="text-sm text-zinc-600">저장탱크(용량)</span>
+            <input id="storage_tank" name="storage_tank" value={formData.storage_tank} placeholder="예: 3기 / 90kL" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
           </label>
 
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">주유기(대)</span>
-            <input id="pump_count" name="pump_count" value={formData.pump_count} placeholder="예: 6" className="border p-2" onChange={handleChange} type="text" />
+            <input id="pump_count" name="pump_count" value={formData.pump_count} placeholder="예: 6" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
           </label>
 
           {/* 면적류: m² 입력 → 평 자동 표시 */}
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">부지 면적(㎡)</span>
-            <input id="area" name="area" value={formData.area} placeholder="예: 1200" className="border p-2" onChange={handleChange} type="text" />
+            <input id="area" name="area" value={formData.area} placeholder="예: 1200" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
             {areaP && <span className="text-xs text-zinc-500">≈ {areaP} 평</span>}
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-sm text-zinc-600">대지(㎡)</span>
-            <input id="land_area" name="land_area" value={formData.land_area} placeholder="예: 500" className="border p-2" onChange={handleChange} type="text" />
-            {landP && <span className="text-xs text-zinc-500">≈ {landP} 평</span>}
+            <span className="text-sm text-zinc-600">세차기</span>
+            <input id="land_area" name="land_area" value={formData.land_area} placeholder="세차기 여부" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
+            {landP && <span className="text-xs text-zinc-500">≈ {landP} 세차기 여부</span>}
           </label>
 
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">건평(㎡)</span>
-            <input id="building_area" name="building_area" value={formData.building_area} placeholder="예: 150" className="border p-2" onChange={handleChange} type="text" />
+            <input id="building_area" name="building_area" value={formData.building_area} placeholder="예: 150" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
             {buildingP && <span className="text-xs text-zinc-500">≈ {buildingP} 평</span>}
           </label>
 
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">폴(변경가능여부)</span>
-            <input id="pole" name="pole" value={formData.pole} placeholder="예: 가능/협의/불가" className="border p-2" onChange={handleChange} type="text" />
+            <input id="pole" name="pole" value={formData.pole} placeholder="예: 가능/협의/불가" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-sm text-zinc-600">판매량(ℓ/월)</span>
-            <input id="sales_volume" name="sales_volume" value={formData.sales_volume} placeholder="예: 300000" className="border p-2" onChange={handleChange} type="text" />
+            <span className="text-sm text-zinc-600">판매량(드럼)</span>
+            <input id="sales_volume" name="sales_volume" value={formData.sales_volume} placeholder="" className="border-2 bg-zinc-100/40 p-2" onChange={handleChange} type="text" />
           </label>
 
           <label className="flex flex-col gap-1">
             <span className="text-sm text-zinc-600">시설권리금(원)</span>
-            <input id="facility_premium" name="facility_premium" value={formData.facility_premium} placeholder="예: 80000000" className="border p-2" onChange={handleChange} type="text" />
+            <input
+              id="facility_premium"
+              name="facility_premium"
+              value={formData.facility_premium}
+              placeholder="예: 80000000"
+              className="border-2 bg-zinc-100/40 p-2"
+              onChange={handleChange}
+              type="text"
+            />
           </label>
         </div>
 
         <label className="flex flex-col gap-1 col-span-full">
           <span className="text-sm text-zinc-600">특징</span>
-          <textarea id="features" name="features" value={formData.features} placeholder="특이사항, 조건, 메모 등" className="border p-2 h-48" onChange={handleChange} />
+          <textarea id="features" name="features" value={formData.features} placeholder="특이사항, 조건, 메모 등" className="border-2 bg-zinc-100/40 p-2 h-48" onChange={handleChange} />
         </label>
 
-        <button type="submit" disabled={saving} className="bg-lime-500 text-white py-3 w-full my-10 p-2 rounded hover:bg-lime-600 disabled:opacity-60 disabled:cursor-not-allowed">
+        <button type="submit" disabled={saving} className="bg-zinc-800 text-white py-3 w-full my-10 p-2 rounded hover:bg-lime-600 disabled:opacity-60 disabled:cursor-not-allowed">
           {saving ? "수정 중…" : "수정하기"}
         </button>
       </form>

@@ -20,7 +20,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.modenoil.com"),
   icons: {
-    icon: "/favicon2.ico",
+    icon: "/favicon.ico",
   },
   title: {
     default: "모든 주유소 | 주유소 임대·매매·부지 전문",
@@ -53,7 +53,7 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
-        <link rel="icon" href="/favicon2.ico" sizes="any" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
         <GNB />

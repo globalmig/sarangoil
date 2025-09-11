@@ -189,7 +189,7 @@ export default async function Page() {
                 </a>
               </li>
               <li>
-                <a href="https://www.consumer.go.kr/consumer/index.do" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                <a href="https://www.consumer.go.kr/user/ftc/consumer/priceInfo/93/selectPriceInfoOilList.do" target="_blank" rel="noreferrer" className="block hover:opacity-80">
                   <Image src="/img/OfficialLinks/소비자24.png" alt="소비자24" width={140} height={140} />
                 </a>
               </li>

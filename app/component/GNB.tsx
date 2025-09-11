@@ -52,6 +52,11 @@ export default function GNB() {
               <li>
                 <Link href="/charging?category=charging-station">주유소 충전소</Link>
               </li>
+              <li>
+                <Link href="/manager" className="text-lime-300">
+                  관리자페이지
+                </Link>
+              </li>
             </ul>
 
             {/* 모바일 버튼 */}

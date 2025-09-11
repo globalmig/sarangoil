@@ -89,6 +89,11 @@ export default function GNB() {
                 주유소 충전소
               </Link>
             </li>
+            <li>
+              <Link href="/manager" className="block px-4 py-4 text-lime-700" onClick={() => setOpen(false)}>
+                관리자페이지
+              </Link>
+            </li>
           </ul>
         </div>
       </nav>

@@ -106,7 +106,7 @@ export default async function Page({ searchParams }: { searchParams?: { category
       const title = `[${typeKo}${r.deal_type}] ${featuresShort || r.location || ""}`.trim();
 
       const dealTypeShort: "임" | "매" = r.deal_type === "임대" ? "임" : "매";
-      const priceText = r.deal_type === "임대" ? `${r.deposit} / ${r.monthly_rent}` : `${r.price}`;
+      const priceText = r.deal_type === "임대" ? `${r.deposit ?? "-"} / ${r.monthly_rent ?? "-"}` : `${r.price ?? "-"}`;
       const areaText = r.area != null && String(r.area).trim() !== "" ? `${r.area}㎡${pyeongSuffix(r.area)}` : "-";
       const dateText = r.created_at
         ? new Date(r.created_at)

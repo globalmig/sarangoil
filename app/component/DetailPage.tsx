@@ -10,6 +10,10 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 const M2_PER_PYEONG = 3.305785;
+function nullText(v: unknown): string {
+  if (v === null || v === undefined || v === "") return "-";
+  return String(v);
+}
 function m2ToPyeongText(v: unknown): string {
   if (v === null || v === undefined || v === "") return "-";
   const raw = String(v).replace(/,/g, "").trim();

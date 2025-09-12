@@ -1,5 +1,6 @@
 // app/components/DetailPage.tsx
 import Link from "next/link";
+import Contact from "./Contact";
 
 const TYPE_LABEL: Record<string, string> = {
   gas_station: "주유소",
@@ -77,14 +78,14 @@ export default function DetailPage({ data }: { data: Property }) {
   const propertyCode = data.code ?? String(data.id).padStart(8, "0");
 
   return (
-    <section className="w-full my-20 md:mt-32">
+    <section className="w-full mt-20 md:mt-32">
       <div className="max-w-[860px] mx-auto">
         {/* 헤더 */}
         <div className="md:py-10 border-b mb-4 px-4">
           <div className="flex flex-col w-full justify-between">
             <div className="w-full">
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900 break-keep mb-2">{title}</h1>
-              <div className="flex w-full flex-col md:flex-row md:items-center gap-4 text-sm text-gray-600 mt-4">
+              <div className="flex w-full  md:flex-row md:items-center gap-4 text-sm text-gray-600 my-4">
                 <span>등록일: {dateText}</span>
                 <span>매물번호: {propertyCode}</span>
               </div>
@@ -128,11 +129,13 @@ export default function DetailPage({ data }: { data: Property }) {
           )}
         </div>
       </div>
-      <div className="flex justify-center w-full gap-3 ">
-        <Link href="/lease?category=gas-lease" className="px-4 py-2 my-10 w-full max-w-[820px] text-center text-sm bg-lime-700/30 border rounded-lg hover:bg-gray-50 transition-colors">
+      <div className="flex justify-center w-full gap-3 px-4">
+        <Link href="/lease?category=gas-lease" className="py-2 my-10 w-full max-w-[820px] text-center text-sm bg-lime-700/30 border rounded-lg hover:bg-gray-50 transition-colors">
           목록으로
         </Link>
       </div>
+
+      <Contact />
     </section>
   );
 }

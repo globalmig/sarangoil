@@ -12,7 +12,7 @@ import "./styles/slider/style.css";
 
 export default function App() {
   return (
-    <Suspense fallback={<div className="p-6 text-sm text-zinc-500 ">Loading…</div>}>
+    <>
       <Swiper
         centeredSlides={true}
         autoplay={{
@@ -74,6 +74,6 @@ export default function App() {
           </div>
         </SwiperSlide>
       </Swiper>
-    </Suspense>
+    </>
   );
 }

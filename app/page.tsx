@@ -176,61 +176,75 @@ export default async function Page() {
       </section>
       <div className="flex md:mt-20 my-10 max-w-[1200px]  mx-auto px-4">
         {/* ===== 메인 2열 그리드 ===== */}
-        <section className="md:grid md:grid-cols-[200px_1fr] md:auto-rows-min md:gap-6">
-          {/* 1행 좌: 로고 패널 */}
-          <aside className="rounded-lg border bg-white md:col-start-1 md:row-start-1 hidden md:block">
+        <div className="">
+          <section className="md:grid md:grid-cols-[200px_1fr] md:auto-rows-min md:gap-6">
+            {/* 1행 좌: 로고 패널 */}
+            <aside className="rounded-lg border bg-white md:col-start-1 md:row-start-1 hidden md:block">
+              <div className="px-4 py-3 border-b bg-black text-white rounded-t-lg">
+                <h2 className="text-lg md:text-xl font-bold text-center">관련 사이트</h2>
+              </div>
+              <ul className="p-4 grid grid-cols-1 gap-8 place-items-center">
+                <li>
+                  <a href="https://efamily.scourt.go.kr/index.jsp" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                    <Image src="/img/OfficialLinks/iros.go.kr.png" alt="전자가족관계등록" width={140} height={140} />
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.consumer.go.kr/user/ftc/consumer/priceInfo/93/selectPriceInfoOilList.do" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                    <Image src="/img/OfficialLinks/소비자24.png" alt="소비자24" width={140} height={140} />
+                  </a>
+                </li>
+                <li>
+                  <a href="http://www.ikosa.or.kr/" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                    <Image src="/img/OfficialLinks/한국주유소협회.png" alt="한국주유소협회" width={150} height={150} />
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.opinet.co.kr/user/main/mainView.do" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                    <Image src="/img/OfficialLinks/오피넷.png" alt="오피넷" width={100} height={100} />
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.kpetro.or.kr/index.do" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                    <Image src="/img/OfficialLinks/한국석유관리원.png" alt="석유관리원" width={150} height={150} />
+                  </a>
+                </li>
+                <li>
+                  <a href="http://www.koreaoil.or.kr/" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                    <Image src="/img/OfficialLinks/한국석유유통협회.png" alt="한국석유유통협회" width={150} height={150} />
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.eum.go.kr/web/am/amMain.jsp" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                    <Image src="/img/OfficialLinks/토지e음.png" alt="토지e음" width={140} height={140} />
+                  </a>
+                </li>
+                <li>
+                  <a href="https://map.naver.com/" target="_blank" rel="noreferrer" className="block hover:opacity-80">
+                    <Image src="/img/OfficialLinks/네이버지도.png" alt="네이버지도" width={120} height={120} />
+                  </a>
+                </li>
+                <li>
+                  <a href="https://map.kakao.com/" target="_blank" rel="noreferrer" className="block hover:opacity-80 rounded-md">
+                    <Image src="/img/OfficialLinks/카카오맵.png" alt="카카오맵" width={120} height={120} />
+                  </a>
+                </li>
+              </ul>
+            </aside>{" "}
+          </section>
+          <section className="mt-10 space-y-0 max-w-[200px]">
             <div className="px-4 py-3 border-b bg-black text-white rounded-t-lg">
-              <h2 className="text-lg md:text-xl font-bold text-center">관련 사이트</h2>
+              <h2 className="text-lg md:text-xl font-bold text-center">관련 양식</h2>
             </div>
-            <ul className="p-4 grid grid-cols-1 gap-8 place-items-center">
-              <li>
-                <a href="https://efamily.scourt.go.kr/index.jsp" target="_blank" rel="noreferrer" className="block hover:opacity-80">
-                  <Image src="/img/OfficialLinks/iros.go.kr.png" alt="전자가족관계등록" width={140} height={140} />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.consumer.go.kr/user/ftc/consumer/priceInfo/93/selectPriceInfoOilList.do" target="_blank" rel="noreferrer" className="block hover:opacity-80">
-                  <Image src="/img/OfficialLinks/소비자24.png" alt="소비자24" width={140} height={140} />
-                </a>
-              </li>
-              <li>
-                <a href="http://www.ikosa.or.kr/" target="_blank" rel="noreferrer" className="block hover:opacity-80">
-                  <Image src="/img/OfficialLinks/한국주유소협회.png" alt="한국주유소협회" width={150} height={150} />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.opinet.co.kr/user/main/mainView.do" target="_blank" rel="noreferrer" className="block hover:opacity-80">
-                  <Image src="/img/OfficialLinks/오피넷.png" alt="오피넷" width={100} height={100} />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.kpetro.or.kr/index.do" target="_blank" rel="noreferrer" className="block hover:opacity-80">
-                  <Image src="/img/OfficialLinks/한국석유관리원.png" alt="석유관리원" width={150} height={150} />
-                </a>
-              </li>
-              <li>
-                <a href="http://www.koreaoil.or.kr/" target="_blank" rel="noreferrer" className="block hover:opacity-80">
-                  <Image src="/img/OfficialLinks/한국석유유통협회.png" alt="한국석유유통협회" width={150} height={150} />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.eum.go.kr/web/am/amMain.jsp" target="_blank" rel="noreferrer" className="block hover:opacity-80">
-                  <Image src="/img/OfficialLinks/토지e음.png" alt="토지e음" width={140} height={140} />
-                </a>
-              </li>
-              <li>
-                <a href="https://map.naver.com/" target="_blank" rel="noreferrer" className="block hover:opacity-80">
-                  <Image src="/img/OfficialLinks/네이버지도.png" alt="네이버지도" width={120} height={120} />
-                </a>
-              </li>
-              <li>
-                <a href="https://map.kakao.com/" target="_blank" rel="noreferrer" className="block hover:opacity-80 rounded-md">
-                  <Image src="/img/OfficialLinks/카카오맵.png" alt="카카오맵" width={120} height={120} />
-                </a>
-              </li>
-            </ul>
-          </aside>
-        </section>
+            <a
+              href="/doc/주유소_위험물_변경서류(양식).zip"
+              download="주유소 위험물 변경서류(양식).zip"
+              className="block px-4 py-3 border rounded-b-lg bg-gray-100 hover:bg-gray-200 text-center font-medium"
+            >
+              주유소 위험물 변경서류 다운로드
+            </a>
+          </section>
+        </div>
         <div className="flex flex-col gap-10">
           {/* 1행 우: 신규 게시판 */}
           <section className="rounded-lg bg-white md:col-start-2 md:row-start-1">

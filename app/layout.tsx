@@ -58,9 +58,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}>
         <GNB />
         <CallBtn />
-        <Suspense fallback={<div className="p-6 text-sm text-zinc-500 ">Loading…</div>}>
-          <main className="flex-1 min-h-96">{children}</main>
-        </Suspense>
+        {/* <Suspense fallback={<div className="p-6 text-sm text-zinc-500 ">Loading…</div>}> */}
+        <main className="flex-1 min-h-96">{children}</main>
+        {/* </Suspense> */}
         <Footer />
       </body>
     </html>

@@ -151,7 +151,8 @@ export default function PropertyForm() {
           <label className="flex flex-col gap-1 ">
             <span className="text-sm text-zinc-600">매물 유형</span>
             <select id="property_type" name="property_type" className="border-2 bg-zinc-100/40 p-2.5" value={formData.property_type} onChange={handleChange}>
-              <option value="gas_station">주유소</option>
+              {/* <option value="gas_station">주유소</option> */}
+              <option value="charging_station">부지</option>
               <option value="charging_station">충전소</option>
               <option value="rest_area">휴게소</option>
             </select>

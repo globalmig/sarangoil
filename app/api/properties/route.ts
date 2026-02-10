@@ -1,10 +1,10 @@
-// /app/api/properties/route.ts
+﻿// /app/api/properties/route.ts
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { createSupabaseServer } from "@/app/supabase/server";
 
-// 서울 타임존 기준 YYYYMMDD 프리픽스 생성
+// ?쒖슱 ??꾩〈 湲곗? YYYYMMDD ?꾨━?쎌뒪 ?앹꽦
 function getKstYmd() {
   const now = new Date();
   const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
@@ -14,7 +14,7 @@ function getKstYmd() {
   return `${yyyy}${mm}${dd}`;
 }
 
-// 일련번호 생성 (예: 20250910 + 01, 02 ...)
+// ?쇰젴踰덊샇 ?앹꽦 (?? 20250910 + 01, 02 ...)
 function buildCode(ymd: string, seq: number, padLen = 2) {
   return `${ymd}${String(seq).padStart(padLen, "0")}`;
 }
@@ -25,13 +25,13 @@ export async function POST(req: Request) {
   try {
     const raw = await req.json();
 
-    // ✅ 파싱/필터 전부 제거 — 들어온 값 그대로 저장
+    // ???뚯떛/?꾪꽣 ?꾨? ?쒓굅 ???ㅼ뼱??媛?洹몃?濡????
     const payload = {
       location: raw.location ?? null,
       property_type: raw.property_type ?? null,
       deal_type: raw.deal_type ?? null,
 
-      // 면적/수량/금액: 전부 문자열 그대로 (DB 컬럼은 text/varchar 권장)
+      // 硫댁쟻/?섎웾/湲덉븸: ?꾨? 臾몄옄??洹몃?濡?(DB 而щ읆? text/varchar 沅뚯옣)
       area: raw.area ?? null,
       land_area: raw.land_area ?? null,
       building_area: raw.building_area ?? null,
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
       storage_tank: raw.storage_tank ?? null,
       sales_volume: raw.sales_volume ?? null,
 
-      // 기타 텍스트
+      // 湲고? ?띿뒪??
       floor: raw.floor ?? null,
       rooms_bathrooms: raw.rooms_bathrooms ?? null,
       approval_date: raw.approval_date ?? null,
@@ -53,15 +53,15 @@ export async function POST(req: Request) {
       pole: raw.pole ?? null,
       features: raw.features ?? null,
 
-      // 플래그 (boolean 캐스팅만)
+      // ?뚮옒洹?(boolean 罹먯뒪?낅쭔)
       is_recommended: Boolean(raw.is_recommended),
       is_urgent: Boolean(raw.is_urgent),
     };
 
-    // 오늘 날짜 프리픽스(YYYYMMDD)
+    // ?ㅻ뒛 ?좎쭨 ?꾨━?쎌뒪(YYYYMMDD)
     const ymd = getKstYmd();
 
-    // 오늘 발급된 코드 개수 확인 → 다음 시퀀스 번호
+    // ?ㅻ뒛 諛쒓툒??肄붾뱶 媛쒖닔 ?뺤씤 ???ㅼ쓬 ?쒗??踰덊샇
     const { count, error: countErr } = await supabase.from("properties").select("code", { count: "exact", head: true }).ilike("code", `${ymd}%`);
 
     if (countErr) {
@@ -73,36 +73,42 @@ export async function POST(req: Request) {
     const MAX_RETRY = 5;
     let lastError: any = null;
 
-    // 동시성 대비: 유니크 충돌 시 재시도
+    // ?숈떆???鍮? ?좊땲??異⑸룎 ???ъ떆??
     for (let attempt = 0; attempt < MAX_RETRY; attempt++) {
-      const code = buildCode(ymd, seq, 2);
+      const tempCode = buildCode(ymd, seq, 2);
 
       const { data, error } = await supabase
         .from("properties")
-        .insert({ ...payload, code })
-        .select("id, code")
+        .insert({ ...payload, code: tempCode })
+        .select("id")
         .single();
 
       if (!error) {
-        // 성공
-        return NextResponse.json({ id: data!.id, code: data!.code }, { status: 201 });
+        // ?깃났: id 湲곗? 6?먰옄 0 padding ?곸슜
+        const finalCode = String(data!.id).padStart(6, "0");
+        const { error: updateError } = await supabase.from("properties").update({ code: finalCode }).eq("id", data!.id);
+        if (updateError) {
+          console.error("Code update error:", updateError);
+          return NextResponse.json({ error: updateError.message }, { status: 500 });
+        }
+        return NextResponse.json({ id: data!.id, code: finalCode }, { status: 201 });
       }
 
-      // 유니크키 충돌(23505): 번호 올리고 재시도
+      // ?좊땲?ы궎 異⑸룎(23505): 踰덊샇 ?щ━怨??ъ떆??
       if ((error as any)?.code === "23505") {
         seq += 1;
         lastError = error;
         continue;
       }
 
-      // 기타 에러는 즉시 반환
+      // 湲고? ?먮윭??利됱떆 諛섑솚
       console.error("Insert error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // 재시도 모두 실패
+    // ?ъ떆??紐⑤몢 ?ㅽ뙣
     console.error("Insert conflict after retries:", lastError);
-    return NextResponse.json({ error: "코드 발급 충돌로 등록 실패. 잠시 후 다시 시도해주세요." }, { status: 409 });
+    return NextResponse.json({ error: "肄붾뱶 諛쒓툒 異⑸룎濡??깅줉 ?ㅽ뙣. ?좎떆 ???ㅼ떆 ?쒕룄?댁＜?몄슂." }, { status: 409 });
   } catch (e: any) {
     console.error("POST /api/properties failed:", e);
     return NextResponse.json({ error: e.message ?? "Server error" }, { status: 500 });

@@ -236,11 +236,7 @@ export default async function Page() {
             <div className="px-4 py-3 border-b bg-black text-white rounded-t-lg">
               <h2 className="text-lg md:text-xl font-bold text-center">관련 양식</h2>
             </div>
-            <a
-              href="/doc/주유소_위험물_변경서류(양식).zip"
-              download="주유소 위험물 변경서류(양식).zip"
-              className="block px-4 py-3 border rounded-b-lg bg-gray-100 hover:bg-gray-200 text-center font-medium"
-            >
+            <a href="/doc/주유소위험물변경서류.zip" download="주유소 위험물 변경서류.zip" className="block px-4 py-3 border rounded-b-lg bg-gray-100 hover:bg-gray-200 text-center font-medium">
               주유소 위험물 변경서류 다운로드
             </a>
           </section>

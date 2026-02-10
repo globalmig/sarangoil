@@ -1,4 +1,4 @@
-// app/your-list-page/page.tsx
+﻿// app/your-list-page/page.tsx
 export const dynamic = "force-dynamic";
 
 import React from "react";
@@ -81,7 +81,7 @@ export default async function Page({ searchParams }: { searchParams?: { category
     .from("properties")
     .select("*")
     .order("created_at", { ascending: false, nullsFirst: false }) // NULL은 뒤로
-    .order("code, id", { ascending: false }) // 같은 시각이면 더 큰 id 먼저
+    .order("id", { ascending: false }) // 같은 시각이면 더 큰 id 먼저
     .limit(100);
 
   if (propertyTypeFilter) query = query.eq("property_type", propertyTypeFilter);

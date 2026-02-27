@@ -229,6 +229,11 @@ export default async function Page() {
                     <Image src="/img/OfficialLinks/카카오맵.png" alt="카카오맵" width={120} height={120} />
                   </a>
                 </li>
+                <li>
+                  <a href="https://www.chabinu.com/" target="_blank" rel="noreferrer" className="block hover:opacity-80 rounded-md font-bold bg-black text-white py-4 px-10">
+                    CHABINU
+                  </a>
+                </li>
               </ul>
             </aside>{" "}
           </section>
